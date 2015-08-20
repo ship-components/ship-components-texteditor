@@ -1,25 +1,29 @@
 # TextEditor
 
-Rich Text Editor for React
+Rich Text Editor for React using contentEditable. Uses ES6 through Babel.
 
 ## Installation
 
-1) `npm install react lodash classnames react-texteditor`
+Requires react and classnames to installed. They are not bundled in the package.
+
+```shell
+npm install react classnames react-texteditor --save-dev`
+```
 
 ## Usage
 
 ```js
+var React = require('react');
 var TextEditor = require('react-texteditor');
 
-var View = react.createClass({
+var ExampleView = React.createClass({
     /**
      * Initial State
      *
      * @type    {Object}
      */
     getInitialState: {
-        text: '',
-        editable: true,
+        text: ''
     }
 
     /**
@@ -43,8 +47,7 @@ var View = react.createClass({
         return (
             <TextEditor
                   onChange={this.handleChange.bind(this, 'text')}
-                  value={this.state.text}
-                  editable={this.state.editable} />
+                  html={this.state.html} />
         );
     }
 });
@@ -53,7 +56,7 @@ var View = react.createClass({
 
 ## Development
 
-Source files are located in `src/` and can be built the default `grunt` command after running `npm install`. Transformed files are saved to the `dist/` folder.
+Source files are located in `src/` and can be built with `grunt build` command after running `npm install`. Transformed files are saved to the `dist/` folder.
 
 If you're using webpack with the babel loader you can directly require the `src/` folder, e.g.
 

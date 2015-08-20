@@ -7,7 +7,8 @@
  *
  */
 module.exports = function(grunt) {
-  grunt.registerTask('default', [
-    'webpack:watch'
+  grunt.registerTask('build', [
+    'webpack:dev',
+    'webpack:dist'
   ]);
 };

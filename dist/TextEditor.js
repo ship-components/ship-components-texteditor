@@ -1,266 +1,523 @@
-/*******************************************************************************
- * TextEditor
- *
- * @author       Isaac Suttell <isaac_suttell@playstation.sony.com>
- * @file         Rich Text Editor for React
- ******************************************************************************/
+/*!
+ *                               __              __                   __             .___.__  __                
+ * _______   ____ _____    _____/  |_          _/  |_  ____ ___  ____/  |_  ____   __| _/|__|/  |_  ___________ 
+ * \_  __ \_/ __ \\__  \ _/ ___\   __\  ______ \   __\/ __ \\  \/  /\   __\/ __ \ / __ | |  \   __\/  _ \_  __ \
+ *  |  | \/\  ___/ / __ \\  \___|  |   /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
+ *  |__|    \___  >____  /\___  >__|            |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
+ *              \/     \/     \/                          \/      \/           \/     \/                        
+ * react-texteditor 0.1.0
+ * Rich Text Editor for React
+ * Author: Isaac Suttell <isaac@isaacsuttell.com>
+ * Homepage: https://github.com/isuttell/react-texteditor
+ * Bugs: https://github.com/isuttell/react-texteditor/issues
+ * License: MIT
+ */
+module.exports =
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
 
-'use strict';
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
 
-var React = require('react');
-var classNames = require('classnames');
-var _ = require('lodash');
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
 
-var TextEditor = React.createClass({
-  displayName: 'TextEditor',
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
 
-  /**
-   * Defaults
-   *
-   * @return    {Object}
-   */
-  getDefaultProps: function getDefaultProps() {
-    return {
-      className: '',
-      editable: false,
-      value: '',
-      tabIndex: void 0,
-      pasteAsPlain: true,
-      buttons: {
-        bold: {
-          enabled: true,
-          command: 'bold',
-          iconClass: 'icon-bold'
-        },
-        italic: {
-          enabled: true,
-          command: 'italic',
-          iconClass: 'icon-italic'
-        },
-        underline: {
-          enabled: true,
-          command: 'underline',
-          iconClass: 'icon-underline'
-        }
-      }
-    };
-  },
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 
-  /**
-   * Loose type checking. Removed during production minification
-   *
-   * @type    {Object}
-   */
-  propTypes: {
-    className: React.PropTypes.string,
-    editable: React.PropTypes.bool,
-    value: React.PropTypes.string,
-    tabIndex: React.PropTypes.number,
-    buttons: React.PropTypes.object
-  },
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
 
-  /**
-   * I am not focused
-   *
-   * @return    {Object}
-   */
-  getInitialState: function getInitialState() {
-    return {
-      focus: false
-    };
-  },
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
 
-  /**
-   * On input and blur emit a change to our parent
-   *
-   * @param     {SyntheticEvent}    event
-   */
-  emitChange: function emitChange(event) {
-    var html = this.refs.content.getDOMNode().innerHTML;
 
-    var ev = _.extend(event, {
-      target: { value: html }
-    });
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
 
-    if (html !== this.lastHtml && _.isFunction(this.props.onChange)) {
-      this.props.onChange(ev);
-    }
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
 
-    this.lastHtml = html;
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
 
-    if (event.type === 'blur' && _.isFunction(this.props.onBlur)) {
-      this.props.onBlur(ev);
-    }
-  },
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
 
-  /**
-   * Onlu update if it chagned
-   *
-   * @param     {Object}    nextProps
-   * @return    {Boolean}
-   */
-  shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
-    return this.refs.content && nextProps.value !== this.refs.content.getDOMNode().innerHTML || this.state.focus !== nextState.focus;
-  },
+	/**
+	 * @file TextEditor React Component
+	 * @author Isaac Suttell <isaac@isaacsuttell.com>
+	 */
 
-  /**
-   * Execute a command: bold, underline, italic
-   *
-   * @param     {String}        command
-   * @param     {MouseEvent}    event
-   */
-  handleCommand: function handleCommand(command, event) {
-    event.preventDefault();
-    document.execCommand(command, null, '');
-  },
+	'use strict';
 
-  /**
-   * Remove text styles from paste
-   *
-   * @param     {ClipboardEvent}    event
-   */
-  handlePaste: function handlePaste(event) {
-    if (this.props.pasteAsPlain !== true) {
-      return;
-    }
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 
-    // Prevent paste
-    event.preventDefault();
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-    // Get text without styles
-    var text = event.clipboardData.getData('text/plain');
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-    // Paste the unformatted text
-    document.execCommand('insertHTML', false, text);
-  },
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-  /**
-   * Bind to the body so we can check for clicks outside of the TextEditor
-   * and hide the controls
-   */
-  componentDidMount: function componentDidMount() {
-    document.body.addEventListener('click', this.handleBodyClick);
-  },
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  /**
-   * Clean up
-   */
-  componentWillUnmount: function componentWillUnmount() {
-    document.body.removeEventListener('click', this.handleBodyClick);
-  },
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-  /**
-   * We have clarity
-   */
-  handleFocus: function handleFocus() {
-    this.setState({
-      focus: true
-    });
-  },
+	var _react = __webpack_require__(2);
 
-  /**
-   * Handle clicks outside of the Selector
-   *
-   * @param     {Event}    event
-   */
-  handleBodyClick: function handleBodyClick(event) {
-    if (this.state.focus) {
-      // Only search if the select box is open
-      var source = event.target;
-      var found = false;
-      // Search up the tree for the component node
-      while (source.parentNode) {
-        found = source === this.getDOMNode();
-        if (found) {
-          return;
-        }
-        source = source.parentNode;
-      }
+	var _react2 = _interopRequireDefault(_react);
 
-      // If we couldn't find this components node then close it
-      this.setState({
-        focus: false
-      });
-    }
-  },
+	var _classnames = __webpack_require__(1);
 
-  /**
-   * Reader a single button and bind it's command
-   *
-   * @param     {String}    btn
-   * @return    {React}
-   */
-  renderButton: function renderButton(btn) {
-    var options = this.props.buttons[btn];
-    if (options && options.enabled) {
-      return React.createElement('button', {
-        onClick: this.handleCommand.bind(this, options.command),
-        className: classNames('btn', 'btn-icon', options.iconClass), type: 'button' });
-    } else {
-      return null;
-    }
-  },
+	var _classnames2 = _interopRequireDefault(_classnames);
 
-  /**
-   * Render buttons specified in props
-   *
-   * @return    {React}
-   */
-  renderButtons: function renderButtons() {
-    if (!this.props.editable) {
-      return null;
-    }
+	var _ContentEditable = __webpack_require__(3);
 
-    var controls = [];
-    for (var key in this.props.buttons) {
-      if (this.props.buttons.hasOwnProperty(key)) {
-        controls.push(this.renderButton(key));
-      }
-    }
+	var _ContentEditable2 = _interopRequireDefault(_ContentEditable);
 
-    return React.createElement(
-      'div',
-      { className: 'text-editor--controls btn-group' },
-      controls
-    );
-  },
+	var TextEditor = (function (_React$Component) {
+	  _inherits(TextEditor, _React$Component);
 
-  /**
-   * Render
-   *
-   * @return    {React}
-   */
-  render: function render() {
-    // Ensure value is not null
-    var value = this.props.value ? this.props.value : '';
+	  function TextEditor(props) {
+	    _classCallCheck(this, TextEditor);
 
-    if (this.props.editable) {
-      var componentStyles = classNames(this.props.className, 'text-editor', {
-        'focus': this.state.focus
-      });
+	    _get(Object.getPrototypeOf(TextEditor.prototype), 'constructor', this).call(this, props);
 
-      return React.createElement(
-        'div',
-        { className: componentStyles, onClick: this.handleFocus },
-        this.renderButtons(),
-        React.createElement('div', {
-          className: 'text-editor--field',
-          onInput: this.emitChange,
-          onBlur: this.emitChange,
-          onPaste: this.handlePaste,
-          onKeyDown: this.props.onKeyDown,
-          ref: 'content',
-          tabIndex: this.props.tabIndex,
-          contentEditable: true,
-          dangerouslySetInnerHTML: { __html: value } })
-      );
-    } else {
-      return React.createElement('div', {
-        className: classNames(this.props.className, 'text-editor'),
-        dangerouslySetInnerHTML: { __html: value } });
-    }
-  }
-});
+	    // Initial state
+	    this.state = {
+	      focus: false
+	    };
+	  }
 
-module.exports = TextEditor;
-//# sourceMappingURL=TextEditor.js.map
+	  /**
+	   * Bind to the body so we can check for clicks outside of the TextEditor
+	   * and hide the controls
+	   */
+
+	  _createClass(TextEditor, [{
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      document.body.addEventListener('click', this.handleBodyClick.bind(this));
+	    }
+
+	    /**
+	     * Clean up
+	     */
+	  }, {
+	    key: 'componentWillUnmount',
+	    value: function componentWillUnmount() {
+	      document.body.removeEventListener('click', this.handleBodyClick.bind(this));
+	    }
+
+	    /**
+	     * Handle clicks outside of the Selector
+	     *
+	     * @param     {Event}    event
+	     */
+	  }, {
+	    key: 'handleBodyClick',
+	    value: function handleBodyClick(event) {
+	      if (this.state.focus === true) {
+	        // Only search if the select box is open
+	        var source = event.target;
+	        var found = false;
+	        var el = _react2['default'].findDOMNode(this);
+	        // Search up the tree for the component node
+	        while (source.parentNode) {
+	          found = source === el;
+	          if (found) {
+	            return;
+	          }
+	          source = source.parentNode;
+	        }
+
+	        // If we couldn't find this components node then close it
+	        this.handleBlur(event);
+	      }
+	    }
+
+	    /**
+	     * Execute a command: bold, underline, italic
+	     *
+	     * @param     {String}        command
+	     * @param     {MouseEvent}    event
+	     */
+	  }, {
+	    key: 'handleCommand',
+	    value: function handleCommand(command, event) {
+	      // Prevent the cursor from moving
+	      event.preventDefault();
+	      document.execCommand(command, null, '');
+
+	      return false;
+	    }
+
+	    /**
+	     * Pass the change event
+	     * @param     {Event}    event
+	     */
+	  }, {
+	    key: 'handleChange',
+	    value: function handleChange(event) {
+	      this.props.onChange(event);
+	    }
+
+	    /**
+	     * Reset Focus
+	     * @param     {MouseEvent}    event
+	     */
+	  }, {
+	    key: 'handleBlur',
+	    value: function handleBlur(event) {
+	      this.setState({
+	        focus: false
+	      });
+	      this.props.onBlur(event);
+	    }
+
+	    /**
+	     * Set focus
+	     */
+	  }, {
+	    key: 'handleClick',
+	    value: function handleClick() {
+	      this.setState({
+	        focus: true
+	      });
+	      this.props.onFocus();
+	    }
+
+	    /**
+	     * Either show a plan div or a ContentEditable component
+	     * @return    {[type]}    [description]
+	     */
+	  }, {
+	    key: 'renderContent',
+	    value: function renderContent() {
+	      if (this.props.editable) {
+	        return _react2['default'].createElement(_ContentEditable2['default'], {
+	          className: 'text-editor--field',
+	          pasteAsPlain: this.props.pasteAsPlain,
+	          onChange: this.handleChange.bind(this),
+	          onBlur: this.handleBlur.bind(this),
+	          tabIndex: this.props.tabIndex,
+	          html: this.props.html
+	        });
+	      } else {
+	        return _react2['default'].createElement('div', {
+	          className: 'text-editor--field',
+	          /* eslint-disable */
+	          dangerouslySetInnerHTML: { __html: this.props.html ? this.props.html : '' }
+	          /* eslint-enable */
+	        });
+	      }
+	    }
+
+	    /**
+	     * Reader a single button and bind it's command
+	     *
+	     * @param     {String}    btn
+	     * @return    {React}
+	     */
+	  }, {
+	    key: 'renderButton',
+	    value: function renderButton(btn) {
+	      var options = this.props.buttons[btn];
+	      if (options && options.enabled) {
+	        return _react2['default'].createElement('button', {
+	          key: options.command,
+	          onClick: this.handleCommand.bind(this, options.command),
+	          className: (0, _classnames2['default'])('btn', 'btn-icon', options.iconClass),
+	          type: 'button' });
+	      } else {
+	        return null;
+	      }
+	    }
+
+	    /**
+	     * Render buttons specified in props
+	     *
+	     * @return    {React}
+	     */
+	  }, {
+	    key: 'renderButtons',
+	    value: function renderButtons() {
+	      if (!this.props.editable || !this.props.buttons) {
+	        return null;
+	      }
+
+	      var controls = [];
+	      for (var key in this.props.buttons) {
+	        if (this.props.buttons.hasOwnProperty(key)) {
+	          controls.push(this.renderButton(key));
+	        }
+	      }
+
+	      return _react2['default'].createElement(
+	        'div',
+	        { className: 'text-editor--controls btn-group' },
+	        controls
+	      );
+	    }
+
+	    /**
+	     * Throw up a placeholder when we're empty
+	     * @return    {React}
+	     */
+	  }, {
+	    key: 'renderPlaceholder',
+	    value: function renderPlaceholder() {
+	      if (!this.props.editable) {
+	        return null;
+	      } else if (!this.props.placeholder) {
+	        return null;
+	      } else if (typeof this.props.html !== 'string' || this.props.html.length > 0) {
+	        return null;
+	      }
+	      return _react2['default'].createElement(
+	        'span',
+	        { className: 'text-editor--placeholder' },
+	        this.props.placeholder
+	      );
+	    }
+
+	    /**
+	     * Make it all happen
+	     * @return    {React}
+	     */
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var classes = (0, _classnames2['default'])(this.props.className, 'text-editor', {
+	        'text-editor--editable': this.props.editable,
+	        'focus': this.state.focus
+	      });
+
+	      return _react2['default'].createElement(
+	        'div',
+	        {
+	          className: classes,
+	          onClick: this.handleClick.bind(this)
+	        },
+	        this.renderButtons(),
+	        this.renderPlaceholder(),
+	        this.renderContent()
+	      );
+	    }
+	  }]);
+
+	  return TextEditor;
+	})(_react2['default'].Component);
+
+	exports['default'] = TextEditor;
+
+	TextEditor.defaultProps = {
+	  className: '',
+	  editable: false,
+	  html: '',
+	  tabIndex: void 0,
+	  pasteAsPlain: true,
+	  onChange: function onChange() {},
+	  onBlur: function onBlur() {},
+	  onFocus: function onFocus() {},
+	  buttons: {
+	    bold: {
+	      enabled: true,
+	      command: 'bold',
+	      iconClass: 'icon-format_bold'
+	    },
+	    italic: {
+	      enabled: true,
+	      command: 'italic',
+	      iconClass: 'icon-format_italic'
+	    },
+	    underline: {
+	      enabled: true,
+	      command: 'underline',
+	      iconClass: 'icon-format_underlined'
+	    }
+	  }
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	module.exports = require("classnames");
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	module.exports = require("react");
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * @file ContentEditable React Component
+	 * @author Isaac Suttell <isaac@isaacsuttell.com>
+	 */
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _classnames = __webpack_require__(1);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var ContentEditable = (function (_React$Component) {
+	  _inherits(ContentEditable, _React$Component);
+
+	  function ContentEditable() {
+	    _classCallCheck(this, ContentEditable);
+
+	    _get(Object.getPrototypeOf(ContentEditable.prototype), 'constructor', this).apply(this, arguments);
+	  }
+
+	  /**
+	   * Defaults
+	   * @type    {Object}
+	   */
+
+	  _createClass(ContentEditable, [{
+	    key: 'shouldComponentUpdate',
+
+	    /**
+	     * Only update if the html doesn't match the props
+	     * @param     {Object}    nextProps
+	     * @return    {Boolean}
+	     */
+	    value: function shouldComponentUpdate(nextProps) {
+	      return nextProps.html !== _react2['default'].findDOMNode(this).innerHTML;
+	    }
+
+	    /**
+	     * Ensure the html matches
+	     */
+	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      var el = _react2['default'].findDOMNode(this);
+	      if (this.props.html !== el.innerHTML) {
+	        el.innerHTML = this.props.html;
+	      }
+	    }
+
+	    /**
+	     * Called on input and blur. We extend the event with the value and pass up our chain the appropriate event
+	     * @param     {String}   type     blur|change
+	     * @param     {Event}    event
+	     */
+	  }, {
+	    key: 'emitChange',
+	    value: function emitChange(type, event) {
+	      var html = _react2['default'].findDOMNode(this).innerHTML;
+
+	      event.target = {
+	        value: html
+	      };
+
+	      if (html !== this.lastHtml) {
+	        this.props.onChange(event);
+	      }
+
+	      if (type === 'blur') {
+	        this.props.onBlur(event);
+	      }
+
+	      this.lastHtml = html;
+	    }
+
+	    /**
+	     * Remove text styles from paste
+	     *
+	     * @param     {ClipboardEvent}    event
+	     */
+	  }, {
+	    key: 'handlePaste',
+	    value: function handlePaste(event) {
+	      if (this.props.pasteAsPlain !== true) {
+	        return;
+	      }
+
+	      // Prevent paste
+	      event.preventDefault();
+
+	      // Get text without styles
+	      var text = event.clipboardData.getData('text/plain');
+
+	      // Paste the unformatted text
+	      document.execCommand('insertHTML', false, text);
+	    }
+
+	    /**
+	     * Render
+	     *
+	     * @return    {React}
+	     */
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      return _react2['default'].createElement('div', {
+	        className: (0, _classnames2['default'])(this.props.className),
+	        contentEditable: true,
+	        onPaste: this.handlePaste.bind(this),
+	        onInput: this.emitChange.bind(this, 'input'),
+	        onBlur: this.emitChange.bind(this, 'blur'),
+	        /* eslint-disable */
+	        dangerouslySetInnerHTML: { __html: this.props.html }
+	        /* eslint-enable */
+	      });
+	    }
+	  }]);
+
+	  return ContentEditable;
+	})(_react2['default'].Component);
+
+	exports['default'] = ContentEditable;
+	ContentEditable.defaultProps = {
+	  pasteAsPlain: true,
+	  onChange: function onChange() {},
+	  onBlur: function onBlur() {}
+	};
+	module.exports = exports['default'];
+
+/***/ }
+/******/ ]);

@@ -70,6 +70,10 @@ export default class ContentEditable extends React.Component {
     document.execCommand('insertHTML', false, text);
   }
 
+  handleKeyDown(event) {
+    this.props.onKeyDown(event);
+  }
+
   /**
    * Render
    *
@@ -80,9 +84,12 @@ export default class ContentEditable extends React.Component {
       <div
         className={classNames(this.props.className)}
         contentEditable={true}
+        tabIndex={this.props.tabIndex}
         onPaste={this.handlePaste.bind(this)}
         onInput={this.emitChange.bind(this, 'input')}
+        onKeyUp={this.emitChange.bind(this, 'keyUp')}
         onBlur={this.emitChange.bind(this, 'blur')}
+        onKeyDown={this.handleKeyDown.bind(this)}
         /* eslint-disable */
         dangerouslySetInnerHTML={{__html: this.props.html}}
         /* eslint-enable */
@@ -96,7 +103,9 @@ export default class ContentEditable extends React.Component {
  * @type    {Object}
  */
 ContentEditable.defaultProps = {
+  tabIndex: void 0,
   pasteAsPlain: true,
+  onKeyDown: function() {},
   onChange: function() {},
   onBlur: function() {}
 }

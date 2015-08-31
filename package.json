@@ -27,16 +27,13 @@
     "babel-core": "^5.8.22",
     "babel-eslint": "^4.0.10",
     "babel-loader": "^5.3.2",
-    "classnames": "^2.1.1",
     "eslint": "^1.2.1",
     "eslint-loader": "^1.0.0",
     "eslint-plugin-react": "^3.2.3",
     "grunt": "^0.4.5",
     "grunt-babel": "^5.0.1",
     "grunt-webpack": "^1.0.11",
-    "lodash": "^3.7.0",
     "package-banner": "^0.1.0",
-    "react": "https://registry.npmjs.org/react/-/react-0.13.2.tgz",
     "webpack": "^1.11.0",
     "webpack-dev-server": "^1.10.1"
   }

@@ -15,22 +15,24 @@ export default class TextEditor extends React.Component {
     // Initial state
     this.state = {
       focus: false
-    }
+    };
+
+    this.handleBodyClick = this.handleBodyClick.bind(this);
   }
 
   /**
    * Bind to the body so we can check for clicks outside of the TextEditor
    * and hide the controls
    */
-  componentDidMount () {
-    document.body.addEventListener('click', this.handleBodyClick.bind(this));
+  componentDidMount() {
+    document.body.addEventListener('click', this.handleBodyClick);
   }
 
   /**
    * Clean up
    */
   componentWillUnmount() {
-    document.body.removeEventListener('click', this.handleBodyClick.bind(this));
+    document.body.removeEventListener('click', this.handleBodyClick);
   }
 
   /**
@@ -38,7 +40,7 @@ export default class TextEditor extends React.Component {
    *
    * @param     {Event}    event
    */
-  handleBodyClick(event) {
+  handleBodyClick(event){
     if (this.state.focus === true) {
       // Only search if the select box is open
       var source = event.target;
@@ -101,6 +103,14 @@ export default class TextEditor extends React.Component {
     this.props.onFocus();
   }
 
+  handleKeyDown(event) {
+    switch(event.keyCode) {
+      case 13:
+        this.props.onEnterKeyDown(event);
+    }
+    this.props.onKeyDown(event);
+  }
+
   /**
    * Either show a plan div or a ContentEditable component
    * @return    {[type]}    [description]
@@ -113,6 +123,7 @@ export default class TextEditor extends React.Component {
           pasteAsPlain={this.props.pasteAsPlain}
           onChange={this.handleChange.bind(this)}
           onBlur={this.handleBlur.bind(this)}
+          onKeyDown={this.handleKeyDown.bind(this)}
           tabIndex={this.props.tabIndex}
           html={this.props.html}
         />
@@ -179,7 +190,9 @@ export default class TextEditor extends React.Component {
    * @return    {React}
    */
   renderPlaceholder() {
-    if (!this.props.editable) {
+    if (window.navigator.userAgent.match(/MSIE/i)) {
+      return null;
+    } else if (!this.props.editable) {
       return null;
     } else if (!this.props.placeholder) {
       return null;
@@ -225,6 +238,8 @@ TextEditor.defaultProps = {
   onChange: function() {},
   onBlur: function() {},
   onFocus: function() {},
+  onEnterKeyDown: function() {},
+  onKeyDown: function() {},
   buttons: {
     bold: {
       enabled: true,

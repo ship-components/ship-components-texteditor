@@ -10,14 +10,13 @@
  */
 
 module.exports = function(grunt) {
-  var packageBanner = require('package-banner');
   var webpack = require('webpack');
   var path = require('path');
 
-  var pkg = grunt.file.readJSON('package.json');
-  var banner = packageBanner(pkg, {
-   wrap: false
-  });
+  var PackageBanner = require('package-banner');
+  var banner = new PackageBanner({
+    wrap: false
+  }).build();
 
   grunt.config.set('webpack', {
 
@@ -36,6 +35,7 @@ module.exports = function(grunt) {
 
       externals: {
         'react': true,
+        'react-dom': true,
         'classnames' : true
       },
 
@@ -93,7 +93,7 @@ module.exports = function(grunt) {
       plugins: [
         new webpack.optimize.OccurenceOrderPlugin(true),
         // new webpack.EnvironmentPlugin(['NODE_ENV']),
-        new webpack.optimize.UglifyJsPlugin(),
+        new webpack.optimize.UglifyJsPlugin()
         // new webpack.BannerPlugin(banner)
       ]
     },

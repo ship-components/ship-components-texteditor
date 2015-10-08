@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 
 import ContentEditable from './ContentEditable';
@@ -45,7 +46,7 @@ export default class TextEditor extends React.Component {
       // Only search if the select box is open
       var source = event.target;
       var found = false;
-      var el = React.findDOMNode(this);
+      var el = ReactDOM.findDOMNode(this);
       // Search up the tree for the component node
       while (source.parentNode) {
         found = (source === el);

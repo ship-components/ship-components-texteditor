@@ -6,7 +6,7 @@
  *  |__|    \___  >____  /\___  >__|            |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *              \/     \/     \/                          \/      \/           \/     \/                        
  * react-texteditor 0.1.0
- * Rich Text Editor for React
+ * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/isuttell/react-texteditor
  * Bugs: https://github.com/isuttell/react-texteditor/issues
@@ -84,11 +84,15 @@ module.exports =
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactDom = __webpack_require__(3);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
 	var _classnames = __webpack_require__(1);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
-	var _ContentEditable = __webpack_require__(3);
+	var _ContentEditable = __webpack_require__(4);
 
 	var _ContentEditable2 = _interopRequireDefault(_ContentEditable);
 
@@ -104,6 +108,8 @@ module.exports =
 	    this.state = {
 	      focus: false
 	    };
+
+	    this.handleBodyClick = this.handleBodyClick.bind(this);
 	  }
 
 	  /**
@@ -114,7 +120,7 @@ module.exports =
 	  _createClass(TextEditor, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      document.body.addEventListener('click', this.handleBodyClick.bind(this));
+	      document.body.addEventListener('click', this.handleBodyClick);
 	    }
 
 	    /**
@@ -123,7 +129,7 @@ module.exports =
 	  }, {
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
-	      document.body.removeEventListener('click', this.handleBodyClick.bind(this));
+	      document.body.removeEventListener('click', this.handleBodyClick);
 	    }
 
 	    /**
@@ -138,7 +144,7 @@ module.exports =
 	        // Only search if the select box is open
 	        var source = event.target;
 	        var found = false;
-	        var el = _react2['default'].findDOMNode(this);
+	        var el = _reactDom2['default'].findDOMNode(this);
 	        // Search up the tree for the component node
 	        while (source.parentNode) {
 	          found = source === el;
@@ -203,6 +209,15 @@ module.exports =
 	      });
 	      this.props.onFocus();
 	    }
+	  }, {
+	    key: 'handleKeyDown',
+	    value: function handleKeyDown(event) {
+	      switch (event.keyCode) {
+	        case 13:
+	          this.props.onEnterKeyDown(event);
+	      }
+	      this.props.onKeyDown(event);
+	    }
 
 	    /**
 	     * Either show a plan div or a ContentEditable component
@@ -217,6 +232,7 @@ module.exports =
 	          pasteAsPlain: this.props.pasteAsPlain,
 	          onChange: this.handleChange.bind(this),
 	          onBlur: this.handleBlur.bind(this),
+	          onKeyDown: this.handleKeyDown.bind(this),
 	          tabIndex: this.props.tabIndex,
 	          html: this.props.html
 	        });
@@ -284,7 +300,9 @@ module.exports =
 	  }, {
 	    key: 'renderPlaceholder',
 	    value: function renderPlaceholder() {
-	      if (!this.props.editable) {
+	      if (window.navigator.userAgent.match(/MSIE/i)) {
+	        return null;
+	      } else if (!this.props.editable) {
 	        return null;
 	      } else if (!this.props.placeholder) {
 	        return null;
@@ -337,6 +355,8 @@ module.exports =
 	  onChange: function onChange() {},
 	  onBlur: function onBlur() {},
 	  onFocus: function onFocus() {},
+	  onEnterKeyDown: function onEnterKeyDown() {},
+	  onKeyDown: function onKeyDown() {},
 	  buttons: {
 	    bold: {
 	      enabled: true,
@@ -371,6 +391,12 @@ module.exports =
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	module.exports = require("react-dom");
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -397,6 +423,10 @@ module.exports =
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(3);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
 
 	var _classnames = __webpack_require__(1);
 
@@ -425,7 +455,7 @@ module.exports =
 	     * @return    {Boolean}
 	     */
 	    value: function shouldComponentUpdate(nextProps) {
-	      return nextProps.html !== _react2['default'].findDOMNode(this).innerHTML;
+	      return nextProps.html !== _reactDom2['default'].findDOMNode(this).innerHTML;
 	    }
 
 	    /**
@@ -434,7 +464,7 @@ module.exports =
 	  }, {
 	    key: 'componentDidUpdate',
 	    value: function componentDidUpdate() {
-	      var el = _react2['default'].findDOMNode(this);
+	      var el = _reactDom2['default'].findDOMNode(this);
 	      if (this.props.html !== el.innerHTML) {
 	        el.innerHTML = this.props.html;
 	      }
@@ -448,7 +478,7 @@ module.exports =
 	  }, {
 	    key: 'emitChange',
 	    value: function emitChange(type, event) {
-	      var html = _react2['default'].findDOMNode(this).innerHTML;
+	      var html = _reactDom2['default'].findDOMNode(this).innerHTML;
 
 	      event.target = {
 	        value: html
@@ -463,6 +493,16 @@ module.exports =
 	      }
 
 	      this.lastHtml = html;
+	    }
+	  }, {
+	    key: 'stripTags',
+	    value: function stripTags(str) {
+	      return str ? str.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '') : '';
+	    }
+	  }, {
+	    key: 'escapeHTML',
+	    value: function escapeHTML(str) {
+	      return str ? str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
 	    }
 
 	    /**
@@ -483,8 +523,16 @@ module.exports =
 	      // Get text without styles
 	      var text = event.clipboardData.getData('text/plain');
 
+	      // Remove HTML Tags;
+	      text = this.escapeHTML(text);
+
 	      // Paste the unformatted text
 	      document.execCommand('insertHTML', false, text);
+	    }
+	  }, {
+	    key: 'handleKeyDown',
+	    value: function handleKeyDown(event) {
+	      this.props.onKeyDown(event);
 	    }
 
 	    /**
@@ -498,9 +546,12 @@ module.exports =
 	      return _react2['default'].createElement('div', {
 	        className: (0, _classnames2['default'])(this.props.className),
 	        contentEditable: true,
+	        tabIndex: this.props.tabIndex,
 	        onPaste: this.handlePaste.bind(this),
 	        onInput: this.emitChange.bind(this, 'input'),
+	        onKeyUp: this.emitChange.bind(this, 'keyUp'),
 	        onBlur: this.emitChange.bind(this, 'blur'),
+	        onKeyDown: this.handleKeyDown.bind(this),
 	        /* eslint-disable */
 	        dangerouslySetInnerHTML: { __html: this.props.html }
 	        /* eslint-enable */
@@ -513,7 +564,9 @@ module.exports =
 
 	exports['default'] = ContentEditable;
 	ContentEditable.defaultProps = {
+	  tabIndex: void 0,
 	  pasteAsPlain: true,
+	  onKeyDown: function onKeyDown() {},
 	  onChange: function onChange() {},
 	  onBlur: function onBlur() {}
 	};

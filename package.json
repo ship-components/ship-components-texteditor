@@ -1,6 +1,6 @@
 {
   "name": "react-texteditor",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Rich Text Editor for React",
   "main": "dist/TextEditor.js",
   "scripts": {

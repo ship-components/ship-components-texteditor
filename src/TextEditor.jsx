@@ -227,6 +227,8 @@ export default class TextEditor extends React.Component {
       <div
         className={classes}
         onClick={this.handleClick.bind(this)}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
       >
         {this.renderButtons()}
         {this.renderPlaceholder()}
@@ -247,6 +249,8 @@ TextEditor.defaultProps = {
   onFocus: function() {},
   onEnterKeyDown: function() {},
   onKeyDown: function() {},
+  onMouseEnter: function() {},
+  onMouseLeave: function() {},
   buttons: {
     bold: {
       enabled: true,

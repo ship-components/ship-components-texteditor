@@ -338,7 +338,9 @@ module.exports =
 	        'div',
 	        {
 	          className: classes,
-	          onClick: this.handleClick.bind(this)
+	          onClick: this.handleClick.bind(this),
+	          onMouseEnter: this.props.onMouseEnter,
+	          onMouseLeave: this.props.onMouseLeave
 	        },
 	        this.renderButtons(),
 	        this.renderPlaceholder(),
@@ -363,6 +365,8 @@ module.exports =
 	  onFocus: function onFocus() {},
 	  onEnterKeyDown: function onEnterKeyDown() {},
 	  onKeyDown: function onKeyDown() {},
+	  onMouseEnter: function onMouseEnter() {},
+	  onMouseLeave: function onMouseLeave() {},
 	  buttons: {
 	    bold: {
 	      enabled: true,

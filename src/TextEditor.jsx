@@ -70,6 +70,7 @@ export default class TextEditor extends React.Component {
   handleCommand(command, event) {
     // Prevent the cursor from moving
     event.preventDefault();
+    event.stopPropagation();
     document.execCommand(command, null, '');
 
     return false;
@@ -222,7 +223,6 @@ export default class TextEditor extends React.Component {
       'text-editor--editable': this.props.editable,
       'focus' : this.state.focus
     });
-
     return (
       <div
         className={classes}

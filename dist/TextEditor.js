@@ -170,6 +170,7 @@ module.exports =
 	    value: function handleCommand(command, event) {
 	      // Prevent the cursor from moving
 	      event.preventDefault();
+	      event.stopPropagation();
 	      document.execCommand(command, null, '');
 
 	      return false;
@@ -333,7 +334,6 @@ module.exports =
 	        'text-editor--editable': this.props.editable,
 	        'focus': this.state.focus
 	      });
-
 	      return _react2['default'].createElement(
 	        'div',
 	        {

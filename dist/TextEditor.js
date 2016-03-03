@@ -5,7 +5,7 @@
  *  |  | \/\  ___/ / __ \\  \___|  |   /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
  *  |__|    \___  >____  /\___  >__|            |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *              \/     \/     \/                          \/      \/           \/     \/                        
- * react-texteditor 0.1.2
+ * react-texteditor 0.1.3
  * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/isuttell/react-texteditor
@@ -257,7 +257,7 @@ module.exports =
 	    key: 'renderButton',
 	    value: function renderButton(btn) {
 	      var options = this.props.buttons[btn];
-	      if (options && options.enabled) {
+	      if (options && options.enabled && options.comp) {
 	        return _react2['default'].cloneElement(options.comp, {
 	          key: options.command,
 	          className: (0, _classnames2['default'])('btn', 'btn-icon', options.comp.props.className),
@@ -475,8 +475,8 @@ module.exports =
 	    key: 'componentDidUpdate',
 	    value: function componentDidUpdate() {
 	      var el = _reactDom2['default'].findDOMNode(this);
-	      if (this.props.html !== el.innerHTML) {
-	        el.innerHTML = this.props.html;
+	      if (this.props.value !== el.innerHTML) {
+	        el.innerHTML = this.props.value;
 	      }
 	    }
 
@@ -563,7 +563,7 @@ module.exports =
 	        onBlur: this.emitChange.bind(this, 'blur'),
 	        onKeyDown: this.handleKeyDown.bind(this),
 	        /* eslint-disable */
-	        dangerouslySetInnerHTML: { __html: this.props.html }
+	        dangerouslySetInnerHTML: { __html: this.props.value }
 	        /* eslint-enable */
 	      });
 	    }

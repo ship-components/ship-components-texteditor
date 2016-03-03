@@ -151,7 +151,7 @@ export default class TextEditor extends React.Component {
    */
   renderButton(btn) {
     var options = this.props.buttons[btn];
-    if(options && options.enabled) {
+    if(options && options.enabled && options.comp) {
       return React.cloneElement(options.comp, {
         key: options.command,
         className: classNames('btn', 'btn-icon', options.comp.props.className),

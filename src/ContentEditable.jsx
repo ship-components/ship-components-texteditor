@@ -95,7 +95,7 @@ export default class ContentEditable extends React.Component {
     return (
       <div
         className={classNames(this.props.className)}
-        contentEditable={true}
+        contentEditable
         tabIndex={this.props.tabIndex}
         onPaste={this.handlePaste.bind(this)}
         onInput={this.emitChange.bind(this, 'input')}

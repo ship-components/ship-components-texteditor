@@ -23,8 +23,8 @@ export default class ContentEditable extends React.Component {
    */
   componentDidUpdate() {
     let el = ReactDOM.findDOMNode(this);
-    if (this.props.value !== el.innerHTML) {
-      el.innerHTML = this.props.value;
+    if (this.props.html !== el.innerHTML) {
+      el.innerHTML = this.props.html;
     }
   }
 
@@ -103,7 +103,7 @@ export default class ContentEditable extends React.Component {
         onBlur={this.emitChange.bind(this, 'blur')}
         onKeyDown={this.handleKeyDown.bind(this)}
         /* eslint-disable */
-        dangerouslySetInnerHTML={{__html: this.props.value}}
+        dangerouslySetInnerHTML={{__html: this.props.html}}
         /* eslint-enable */
       />
     )

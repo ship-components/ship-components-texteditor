@@ -15,16 +15,15 @@ export default class ContentEditable extends React.Component {
    * @return    {Boolean}
    */
   shouldComponentUpdate(nextProps) {
-    return nextProps.html !== ReactDOM.findDOMNode(this).innerHTML;
+    return nextProps.html !== this.refs.editor.innerHTML;
   }
 
   /**
    * Ensure the html matches
    */
   componentDidUpdate() {
-    let el = ReactDOM.findDOMNode(this);
-    if (this.props.html !== el.innerHTML) {
-      el.innerHTML = this.props.html;
+    if (this.props.html !== this.refs.editor.innerHTML) {
+      this.refs.editor.innerHTML = this.props.html;
     }
   }
 
@@ -34,19 +33,21 @@ export default class ContentEditable extends React.Component {
    * @param     {Event}    event
    */
   emitChange(type, event) {
-    var html = ReactDOM.findDOMNode(this).innerHTML;
+    var html = this.refs.editor.innerHTML;
 
     event.target = {
       value: html
     };
 
-    if(html !== this.lastHtml) {
+    console.log(html !== this.lastHtml , html, this.lastHtml )
+
+    if (html !== this.lastHtml && typeof this.props.onChange === 'function') {
       this.props.onChange(event);
     }
 
-    if(type === 'blur') {
-      this.props.onBlur(event);
-    }
+    // if (type === 'blur' && typeof this.props.onBlur === 'function') {
+    //   this.props.onBlur(event);
+    // }
 
     this.lastHtml = html;
   }
@@ -82,10 +83,6 @@ export default class ContentEditable extends React.Component {
     document.execCommand('insertHTML', false, text);
   }
 
-  handleKeyDown(event) {
-    this.props.onKeyDown(event);
-  }
-
   /**
    * Render
    *
@@ -94,19 +91,20 @@ export default class ContentEditable extends React.Component {
   render() {
     return (
       <div
+        ref='editor'
         className={classNames(this.props.className)}
         contentEditable
         tabIndex={this.props.tabIndex}
         onPaste={this.handlePaste.bind(this)}
         onInput={this.emitChange.bind(this, 'input')}
-        onKeyUp={this.emitChange.bind(this, 'keyUp')}
-        onBlur={this.emitChange.bind(this, 'blur')}
-        onKeyDown={this.handleKeyDown.bind(this)}
+        // onBlur={this.emitChange.bind(this, 'blur')}
+        onBlur={this.props.blur}
+        onKeyDown={this.props.onKeyDown}
         /* eslint-disable */
         dangerouslySetInnerHTML={{__html: this.props.html}}
         /* eslint-enable */
       />
-    )
+    );
   }
 }
 
@@ -116,8 +114,5 @@ export default class ContentEditable extends React.Component {
  */
 ContentEditable.defaultProps = {
   tabIndex: void 0,
-  pasteAsPlain: true,
-  onKeyDown: function() {},
-  onChange: function() {},
-  onBlur: function() {}
+  pasteAsPlain: true
 }

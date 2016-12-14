@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Examples</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,400italic,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+  <style>
+    body {
+      font-family: Lato; sans-serif;
+      line-height: 1.618;
+    }
+    h1, h2, h3 {
+      margin-top: 16px;
+    }
+    h1 {
+      font-size: 36px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+    h3 {
+      font-size: 16px;
+    }
+    b {
+      font-weight: 700;
+    }
+    #examples {
+      margin: 0 auto;
+      max-width: 500px;
+    }
+    .example-group {
+      margin-bottom: 40px;
+    }
+    code {
+      display: block;
+      white-space: pre;
+      background-color: #eee;
+      padding: 8px 16px;
+      border-radius: 3px;
+      margin-top: 8px;
+    }
+
+    .custom-button {
+      background: transparent;
+      outline: none;
+      font-weight: 300;
+      border: 0;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      transition: box-shadow 300ms ease;
+    }
+    .custom-button:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .text-editor--field {
+      border: 1px solid rgba(0, 0, 0, 0.11);
+    }
+  </style>
+</head>
+<body>
+  <div id="examples"></div>
+  <script src="https://unpkg.com/react@15/dist/react.js"></script>
+  <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
+  <script src="/assets/bundle.js"></script>
+</body>
+</html>

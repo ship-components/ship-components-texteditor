@@ -81,7 +81,9 @@ export default class TextEditor extends React.Component {
    * @param     {Event}    event
    */
   handleChange(event) {
-    this.props.onChange(event);
+    if (typeof this.props.onChange === 'function') {
+      this.props.onChange(event);
+    }
   }
 
   /**
@@ -92,7 +94,9 @@ export default class TextEditor extends React.Component {
     this.setState({
       focus: false
     });
-    this.props.onBlur(event);
+    if (typeof this.props.onBlur === 'function') {
+      this.props.onBlur(event);
+    }
   }
 
   /**
@@ -102,15 +106,21 @@ export default class TextEditor extends React.Component {
     this.setState({
       focus: true
     });
-    this.props.onFocus();
+    if (typeof this.props.onFocus === 'function') {
+      this.props.onFocus();
+    }
   }
 
   handleKeyDown(event) {
     switch(event.keyCode) {
       case 13:
-        this.props.onEnterKeyDown(event);
+        if (typeof this.props.onEnterKeyDown === 'function') {
+          this.props.onEnterKeyDown(event);
+        }
     }
-    this.props.onKeyDown(event);
+    if (typeof this.props.onKeyDown === 'function') {
+      this.props.onKeyDown(event);
+    }
   }
 
   /**
@@ -244,13 +254,6 @@ TextEditor.defaultProps = {
   html: '',
   tabIndex: void 0,
   pasteAsPlain: true,
-  onChange: function() {},
-  onBlur: function() {},
-  onFocus: function() {},
-  onEnterKeyDown: function() {},
-  onKeyDown: function() {},
-  onMouseEnter: function() {},
-  onMouseLeave: function() {},
   buttons: {
     bold: {
       enabled: true,

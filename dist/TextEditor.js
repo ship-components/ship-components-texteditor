@@ -1,17 +1,3 @@
-/*!
- *        .__    .__                                                                          __                     __                   __             .___.__  __                
- *   _____|  |__ |__|_____             ____  ____   _____ ______   ____   ____   ____   _____/  |_  ______         _/  |_  ____ ___  ____/  |_  ____   __| _/|__|/  |_  ___________ 
- *  /  ___/  |  \|  \____ \   ______ _/ ___\/  _ \ /     \\____ \ /  _ \ /    \_/ __ \ /    \   __\/  ___/  ______ \   __\/ __ \\  \/  /\   __\/ __ \ / __ | |  \   __\/  _ \_  __ \
- *  \___ \|   Y  \  |  |_> > /_____/ \  \__(  <_> )  Y Y  \  |_> >  <_> )   |  \  ___/|   |  \  |  \___ \  /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
- * /____  >___|  /__|   __/           \___  >____/|__|_|  /   __/ \____/|___|  /\___  >___|  /__| /____  >          |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
- *      \/     \/   |__|                  \/            \/|__|               \/     \/     \/          \/                     \/      \/           \/     \/                        
- * ship-components-texteditor 0.1.3
- * Description: Rich Text Editor for React
- * Author: Isaac Suttell <isaac@isaacsuttell.com>
- * Homepage: https://github.com/ship-components/ship-components-texteditor
- * Bugs: https://github.com/ship-components/ship-components-texteditor/issues
- * License: MIT
- */
 module.exports =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -65,15 +51,15 @@ module.exports =
 	  value: true
 	});
 
-	var _react = __webpack_require__(2);
+	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactDom = __webpack_require__(3);
+	var _reactDom = __webpack_require__(2);
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _classnames = __webpack_require__(1);
+	var _classnames = __webpack_require__(3);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 
@@ -385,19 +371,19 @@ module.exports =
 /* 1 */
 /***/ function(module, exports) {
 
-	module.exports = require("classnames");
+	module.exports = require("react");
 
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
 
-	module.exports = require("react");
+	module.exports = require("react-dom");
 
 /***/ },
 /* 3 */
 /***/ function(module, exports) {
 
-	module.exports = require("react-dom");
+	module.exports = require("classnames");
 
 /***/ },
 /* 4 */
@@ -409,15 +395,15 @@ module.exports =
 	  value: true
 	});
 
-	var _react = __webpack_require__(2);
+	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactDom = __webpack_require__(3);
+	var _reactDom = __webpack_require__(2);
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _classnames = __webpack_require__(1);
+	var _classnames = __webpack_require__(3);
 
 	var _classnames2 = _interopRequireDefault(_classnames);
 

@@ -23,6 +23,9 @@
     "url": "https://github.com/ship-components/ship-components-texteditor/issues"
   },
   "homepage": "https://github.com/ship-components/ship-components-texteditor",
+  "dependencies": {
+    "ship-components-icon": "^0.1.0"
+  },
   "devDependencies": {
     "autoprefixer": "^6.5.4",
     "babel": "^6.5.2",
@@ -53,7 +56,6 @@
     "postcss-simple-vars": "^3.0.0",
     "react": ">=15.0.0",
     "react-dom": ">=15.0.0",
-    "ship-components-icon": "^0.1.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.11.0",
     "webpack-dev-server": "^1.10.1"

@@ -9,17 +9,16 @@
  *    https://github.com/webpack/grunt-webpack
  */
 
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var webpack = require('webpack');
+var path = require('path');
+
 module.exports = function(grunt) {
-  var webpack = require('webpack');
-  var path = require('path');
 
   /** **************************************************************************
    * Build
    */
-  var buildOptions = Object.assign({}, require('./webpack.config'), {
-    // Clear default plugins so we can override through grunt
-    plugins: []
-  });
+  var buildOptions = Object.assign({}, require('./webpack.config'));
 
   grunt.config.set('webpack', {
 
@@ -34,6 +33,9 @@ module.exports = function(grunt) {
       },
 
       plugins: [
+        new ExtractTextPlugin('[name].css', {
+          allChunks: true
+        }),
         new webpack.optimize.OccurenceOrderPlugin(true),
         // new webpack.EnvironmentPlugin(['NODE_ENV']),
         new webpack.optimize.UglifyJsPlugin()
@@ -50,7 +52,12 @@ module.exports = function(grunt) {
   });
 
   var serverOptions = Object.assign({}, require('./webpack.config'), {
-      plugins: [],
+      plugins: [
+        new ExtractTextPlugin('[name].css', {
+          allChunks: true
+        }),
+        new webpack.optimize.OccurenceOrderPlugin(true)
+      ],
       entry : {
         bundle: path.resolve(__dirname, '../../examples/index.js')
       },
@@ -64,16 +71,14 @@ module.exports = function(grunt) {
       externals: {
         'react': 'React',
         'react-dom': 'ReactDOM',
-        'react-addons-css-transition-group': 'React.addons.CSSTransitionGroup'
-      },
-      postcss: {
-
+        'draft-js': 'Draft'
       }
     });
 
     // Remove Extract Plugin. Gotta clone to prevent changing above config
     serverOptions.module = Object.assign({}, serverOptions.module);
     serverOptions.module.loaders = serverOptions.module.loaders.slice(0);
+    serverOptions.module.loaders.splice(serverOptions.module.loaders.length - 1);
     serverOptions.module.loaders.push({
       test: /\.css$/,
       loaders: [
@@ -81,19 +86,13 @@ module.exports = function(grunt) {
         'css-loader?modules&importLoaders=1&localIdentName=[name]--[local]-[hash:base64:5]!postcss-loader'
       ]
     });
-    // File loader
-    serverOptions.module.loaders.push({
-     test: /\.(png|svg|jpeg|jpg|ttf|eot|woff)/,
-     loader: "file?name=[path][name].[ext]"
-    });
-
 
   grunt.config.set('webpack-dev-server', {
     options: {
       webpack: serverOptions,
       host: 'localhost',
       contentBase: 'examples/',
-      publicPath: '/assets/',
+      publicPath: '/',
       filename: 'bundle.js',
       keepalive: true,
       inline: true,

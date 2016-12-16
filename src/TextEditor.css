@@ -1,0 +1,29 @@
+.container {
+  position: relative;
+}
+
+.editor {
+  padding: calc($base-grid-size * 2);
+}
+
+.controls {
+  user-select: none;
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.11);
+  margin: $base-grid-size calc($base-grid-size * -1);
+}
+
+
+.focus {
+
+}
+
+.editable {
+
+}
+
+:global(.public-DraftEditorPlaceholder-inner) {
+  position: absolute;
+  opacity: 0.56;
+  pointer-events: none;
+}

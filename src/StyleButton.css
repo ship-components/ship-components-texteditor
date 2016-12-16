@@ -1,0 +1,41 @@
+$btn-size: 43px;
+
+.btn {
+  outline: none;
+  display: block;
+  background-color: rgba(0, 0, 0, 0.0);
+  margin: 0;
+  width: $btn-size;
+  height: $btn-size;
+  font-size: 20px;
+  box-sizing: border-box;
+  text-align: center;
+  transition: all 300ms ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.11);
+  }
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.btn.iconBtn {
+  &:before {
+    line-height: $btn-size;
+  }
+}
+
+.btn.active {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.26);
+  background-color: rgba(0, 0, 0, 0.11);
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.26);
+  }
+}

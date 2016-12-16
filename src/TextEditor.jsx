@@ -1,227 +1,194 @@
 /**
- * @file TextEditor React Component
+ * @file TextEditor React Component based on Draft
  * @author Isaac Suttell <isaac@isaacsuttell.com>
+ * @see https://facebook.github.io/draft-js/docs/overview.html
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
+import Immutable from 'immutable';
+import { Editor, EditorState, ContentState, convertFromHTML, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
+import Icon from 'ship-components-icon';
+import StyleButton from './StyleButton';
 
-import ContentEditable from './ContentEditable';
+// CSS Module
+import css from './TextEditor.css';
 
-export default class TextEditor extends React.Component {
+/**
+ * Avaiable inline styles to be used with draft-js
+ * @type    {Array}
+ */
+const INLINE_STYLES = [
+  {
+    label: 'Bold',
+    style: 'BOLD',
+    iconClass: Icon.format_bold
+  },
+  {
+    label: 'Italic',
+    style: 'ITALIC',
+    iconClass: Icon.format_italic
+  },
+  {
+    label: 'Underline',
+    style: 'UNDERLINE',
+    iconClass: Icon.format_underlined
+  },
+  {
+    label: 'Link',
+    style: 'LINK',
+    iconClass: Icon.insert_link
+  }
+];
+
+/**
+ * Options for convert to HTML
+ * @see https://www.npmjs.com/package/draft-js-export-html
+ * @type    {Object}
+ */
+const TO_HTML_OPTIONS = {
+  inlineStyles: {
+    BOLD: {
+      element: 'b'
+    },
+    UNDERLINE: {
+      // When converting back to the right format this needs to be `u` otherwise
+      // wise draft-fs doesn't recognize it>
+      element: 'u'
+    },
+    ITALIC: {
+      element: 'i'
+    }
+  }
+};
+
+export default class TextEditor extends Component {
   constructor(props) {
     super(props);
 
-    // Initial state
+    const content = this.convertContentFrom(props);
+
     this.state = {
-      focus: false
+      focus: false,
+      editorState: EditorState.createWithContent(content)
     };
 
-    this.handleBodyClick = this.handleBodyClick.bind(this);
+    this.handleEditorChange = this.handleEditorChange.bind(this);
+    this.handleKeyCommand = this.handleKeyCommand.bind(this);
+    this.focus = this.focus.bind(this);
+    this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
   }
 
   /**
-   * Bind to the body so we can check for clicks outside of the TextEditor
-   * and hide the controls
+   * Performance catch
    */
-  componentDidMount() {
-    document.body.addEventListener('click', this.handleBodyClick);
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.editable !== this.props.editable ||
+           nextState.focus !== this.state.focus ||
+           nextState.editorState !== this.state.editorState;
   }
 
   /**
    * Clean up
    */
   componentWillUnmount() {
-    document.body.removeEventListener('click', this.handleBodyClick);
+    clearTimeout(this.blueTimeoutId);
   }
 
   /**
-   * Handle clicks outside of the Selector
-   *
-   * @param     {Event}    event
+   * Get the content depending on the type of data we're passing around
    */
-  handleBodyClick(event){
-    if (this.state.focus === true) {
-      // Only search if the select box is open
-      var source = event.target;
-      var found = false;
-      var el = ReactDOM.findDOMNode(this);
-      // Search up the tree for the component node
-      while (source.parentNode) {
-        found = (source === el);
-        if(found) {
-          return;
-        }
-        source = source.parentNode;
+  convertContentFrom(props = this.props) {
+    if (!props.value) {
+      return ContentState.createFromText('');
+    } else if (props.type === 'json') {
+      return convertFromRaw(props.value);
+    } else if (props.type === 'html') {
+      return ContentState.createFromBlockArray(convertFromHTML(props.value));
+    } else {
+      return props.value;
+    }
+  }
+
+  /**
+   * Convert the content depending on what the parent wants
+   */
+  convertContentTo() {
+    const content = this.state.editorState.getCurrentContent();
+    if (this.props.type === 'json') {
+      return convertToRaw(content);
+    } else if (this.props.type === 'html') {
+      return stateToHTML(content, TO_HTML_OPTIONS);
+    } else {
+      return content;
+    }
+  }
+
+  /**
+   * Keyboard shortcuts
+   */
+  handleKeyCommand(command) {
+    const newEditorStatue = RichUtils.handleKeyCommand(this.state.editorState, command);
+    if (newEditorStatue) {
+      this.handleEditorChange(newEditorStatue);
+      return 'handled';
+    }
+    return 'not-handled';
+  }
+
+  /**
+   * Text editor change
+   */
+  handleEditorChange(editorState) {
+    // Get the current selection so we can see if we have active focus
+    const focus = editorState.getSelection().getHasFocus();
+
+    this.setState({
+      editorState,
+      focus
+    },()=>{
+      if (typeof this.props.onChange !== 'function') {
+        return;
       }
 
-      // If we couldn't find this components node then close it
-      this.handleBlur(event);
-    }
-  }
+      // Convert from draft-fs format to html so its seamless with the rest of
+      // the application. Should remove this eventually
+      const value = this.convertContentTo();
 
-  /**
-   * Execute a command: bold, underline, italic
-   *
-   * @param     {String}        command
-   * @param     {MouseEvent}    event
-   */
-  handleCommand(command, event) {
-    // Prevent the cursor from moving
-    event.preventDefault();
-    event.stopPropagation();
-    document.execCommand(command, null, '');
-
-    return false;
-  }
-
-  /**
-   * Pass the change event
-   * @param     {Event}    event
-   */
-  handleChange(event) {
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(event);
-    }
-  }
-
-  /**
-   * Reset Focus
-   * @param     {MouseEvent}    event
-   */
-  handleBlur(event) {
-    this.setState({
-      focus: false
-    });
-    if (typeof this.props.onBlur === 'function') {
-      this.props.onBlur(event);
-    }
-  }
-
-  /**
-   * Set focus
-   */
-  handleClick() {
-    this.setState({
-      focus: true
-    });
-    if (typeof this.props.onFocus === 'function') {
-      this.props.onFocus();
-    }
-  }
-
-  handleKeyDown(event) {
-    switch(event.keyCode) {
-      case 13:
-        if (typeof this.props.onEnterKeyDown === 'function') {
-          this.props.onEnterKeyDown(event);
+      // limit change events to only times it changed
+      this.props.onChange({
+        target: {
+          value
         }
-    }
-    if (typeof this.props.onKeyDown === 'function') {
-      this.props.onKeyDown(event);
-    }
-  }
-
-  /**
-   * Either show a plan div or a ContentEditable component
-   * @return    {[type]}    [description]
-   */
-  renderContent() {
-    if (this.props.editable) {
-      return (
-        <ContentEditable
-          className='text-editor--field'
-          pasteAsPlain={this.props.pasteAsPlain}
-          onChange={this.handleChange.bind(this)}
-          onBlur={this.handleBlur.bind(this)}
-          onKeyDown={this.handleKeyDown.bind(this)}
-          tabIndex={this.props.tabIndex}
-          html={this.props.html}
-        />
-      );
-    } else {
-      return (
-        <div
-          className='text-editor--field'
-          /* eslint-disable */
-          dangerouslySetInnerHTML={{__html:this.props.html ? this.props.html : ''}}
-          /* eslint-enable */
-          />
-      );
-    }
-  }
-
-
-  /**
-   * Reader a single button and bind it's command
-   *
-   * @param     {String}    btn
-   * @return    {React}
-   */
-  renderButton(btn) {
-    var options = this.props.buttons[btn];
-    if(options && options.enabled && options.comp) {
-      return React.cloneElement(options.comp, {
-        key: options.command,
-        className: classNames('btn', 'btn-icon', options.comp.props.className),
-        onClick: this.handleCommand.bind(this, options.command)
       });
-    } if(options && options.enabled) {
-      return (
-        <button
-          key={options.command}
-          onClick={this.handleCommand.bind(this, options.command)}
-          className={classNames('btn', 'btn-icon', options.iconClass)}
-          type='button' />
-      );
-    } else {
-      return null;
-    }
+    });
   }
 
   /**
-   * Render buttons specified in props
-   *
-   * @return    {React}
+   * Refocus the cursor on the editor
+   * @public
    */
-  renderButtons() {
-    if (!this.props.editable || !this.props.buttons) {
-      return null;
-    }
-
-    var controls = [];
-    for(var key in this.props.buttons) {
-      if(this.props.buttons.hasOwnProperty(key)) {
-        controls.push(this.renderButton(key));
-      }
-    }
-
-    return (
-      <div className='text-editor--controls btn-group'>
-        {controls}
-      </div>
-    );
+  focus(){
+    this.refs.editor.focus();
   }
+
   /**
-   * Throw up a placeholder when we're empty
-   * @return    {React}
+   * Toggle an inline style
    */
-  renderPlaceholder() {
-    if (window.navigator.userAgent.match(/MSIE/i)) {
-      return null;
-    } else if (!this.props.editable) {
-      return null;
-    } else if (!this.props.placeholder) {
-      return null;
-    } else if (typeof this.props.html !== 'string' || this.props.html.length > 0) {
-      return null;
+  handleInlineStyleClick(inlineStyle, event) {
+    if (!this.props.editable) {
+      return;
     }
-    return (
-      <span className='text-editor--placeholder'>
-        {this.props.placeholder}
-      </span>
-    );
+    if (event) {
+      event.preventDefault();
+    }
+
+    // Generate new state with inline style applied
+    const editorState = RichUtils.toggleInlineStyle(this.state.editorState, inlineStyle);
+
+    // Update
+    this.handleEditorChange(editorState);
   }
 
   /**
@@ -229,46 +196,90 @@ export default class TextEditor extends React.Component {
    * @return    {React}
    */
   render() {
-    var classes = classNames(this.props.className, 'text-editor', {
-      'text-editor--editable': this.props.editable,
-      'focus' : this.state.focus
-    });
+    // Grab the state of the editor, part of draft-fs
+    const {editorState} = this.state;
+
+    // Get the current selection so we can see if we have active focus
+    const selectionState = editorState.getSelection();
+
+    // Get the current style of the selection so we can change the look of the
+    // buttons
+    const currentStyle = editorState.getCurrentInlineStyle();
+
     return (
-      <div
-        className={classes}
-        onClick={this.handleClick.bind(this)}
-        onMouseEnter={this.props.onMouseEnter}
-        onMouseLeave={this.props.onMouseLeave}
-      >
-        {this.renderButtons()}
-        {this.renderPlaceholder()}
-        {this.renderContent()}
+      <div className={classNames(css.container, this.props.className, 'text-editor', {
+        'text-editor--editable': this.props.editable,
+        'text-editor--focus': this.state.focus,
+        [css.editable]: this.props.editable,
+        [css.focus] : this.state.focus
+      })}>
+        {this.props.editable ?
+          <div className={css.controls}>
+            {INLINE_STYLES
+              // Allow user to select styles to show
+              .filter(type => this.props.inlineStyles.has(type.style))
+              .map(type => {
+                return (
+                  <StyleButton
+                    key={type.style}
+                    editorState={editorState}
+                    // Determine if the style is active or not
+                    active={selectionState.getHasFocus() && currentStyle.has(type.style)}
+                    onMouseDown={this.handleInlineStyleClick.bind(this, type.style)}
+                    {...type}
+                  />
+                );
+              })}
+          </div>
+        : null}
+        <div
+          onClick={this.focus}
+          className={css.editor}
+        >
+          <Editor
+            ref='editor'
+            editorState={editorState}
+            onChange={this.handleEditorChange}
+            handleKeyCommand={this.handleKeyCommand}
+            placeholder={this.props.placeholder}
+            readOnly={!this.props.editable}
+            onFocus={this.props.onFocus}
+            onBlur={this.props.onBlur}
+            stripPastedStyles={this.props.stripPastedStyles}
+            spellCheck={this.props.spellCheck}
+            tabIndex={this.props.tabIndex}
+          />
+        </div>
       </div>
-    )
+    );
   }
 }
 
+/**
+ * Type checking
+ * @type    {Object}
+ */
+TextEditor.propTypes = {
+  inlineStyles: PropTypes.instanceOf(Immutable.Set),
+  focusTimeout: PropTypes.number,
+  tabIndex: PropTypes.number,
+  className: PropTypes.string,
+  editable: PropTypes.bool,
+  value: PropTypes.any.isRequired,
+  type: PropTypes.oneOf(['html', 'json', 'Immutable']),
+  spellCheck: PropTypes.bool,
+  stripPastedStyles: PropTypes.bool
+};
+
+/**
+ * Defaults
+ * @type    {Object}
+ */
 TextEditor.defaultProps = {
-  className: '',
-  editable: false,
-  html: '',
-  tabIndex: void 0,
-  pasteAsPlain: true,
-  buttons: {
-    bold: {
-      enabled: true,
-      command: 'bold',
-      iconClass: 'icon-format_bold'
-    },
-    italic: {
-      enabled: true,
-      command: 'italic',
-      iconClass: 'icon-format_italic'
-    },
-    underline: {
-      enabled: true,
-      command: 'underline',
-      iconClass: 'icon-format_underlined'
-    }
-  }
-}
+  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE']),
+  focusTimeout: 500,
+  editable: true,
+  type: 'html',
+  spellCheck: true,
+  stripPastedStyles: true
+};

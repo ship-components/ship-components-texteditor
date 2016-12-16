@@ -221,7 +221,6 @@
     "react/no-unknown-property": 1,
     "react/prop-types": 0,
     "react/react-in-jsx-scope": 1,
-    "react/self-closing-comp": 1,
-    "react/no-deprecated" : 1
+    "react/self-closing-comp": 1
   }
 }

@@ -4,6 +4,7 @@ var PackageBanner = require('package-banner');
 var banner = new PackageBanner({
   wrap: false
 }).build();
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   // Where to start
@@ -21,7 +22,12 @@ module.exports = {
   externals: {
     'react': true,
     'react-dom': true,
-    'classnames' : true
+    'immutable': true,
+    'draft-js': true,
+    'classnames' : true,
+    'react-addons-css-transition-group': true,
+    'ship-components-buttons': true,
+    'ship-components-icon': true
   },
 
   stats: {
@@ -42,9 +48,43 @@ module.exports = {
         test: /\.jsx?|\.es6$/,
         exclude: /(node_modules|bower_components)/,
         loader: 'babel'
+      }, {
+        // Setup jsx loader for ship components
+        test: /\.jsx?|\.es6$/,
+        include: /ship-components-.*\/src/,
+        loader: 'babel'
+      }, {
+          // File loader
+         test: /\.(png|svg|jpeg|jpg|ttf|eot|woff)/,
+         loader: 'file?name=[path][name].[ext]'
+      }, {
+        // CSS Modules
+        test: /\.css$/,
+        include: [
+          /src\//,
+          /ship-components-.*\/src/
+        ],
+        loader: ExtractTextPlugin.extract(
+          'style-loader',
+          'css-loader?modules&importLoaders=1&localIdentName=[name]--[local]!postcss-loader'
+        )
       }
     ]
   },
+
+  postcss: [
+    require('postcss-nested'),
+    require('postcss-simple-vars')({
+      variables: {
+        'primary-color' : '#42aa65',
+        'base-grid-size': '4px'
+      }
+    }),
+    require('postcss-color-hex-alpha'),
+    require('postcss-color-function'),
+    require('postcss-calc'),
+    require('autoprefixer')
+  ],
 
   jshint: {
     failOnHint: false,
@@ -61,6 +101,9 @@ module.exports = {
   },
 
   plugins: [
+    new ExtractTextPlugin('[name].css', {
+      allChunks: true
+    }),
     new webpack.optimize.OccurenceOrderPlugin(true),
     // new webpack.EnvironmentPlugin(['NODE_ENV']),
     new webpack.BannerPlugin(banner)

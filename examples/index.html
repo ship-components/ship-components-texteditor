@@ -10,7 +10,7 @@
       font-family: Lato; sans-serif;
       line-height: 1.618;
     }
-    h1, h2, h3 {
+    h1, h2, h3, h4 {
       margin-top: 16px;
     }
     h1 {
@@ -21,6 +21,7 @@
     }
     h3 {
       font-size: 16px;
+      font-weight: 700;
     }
     b {
       font-weight: 700;
@@ -30,15 +31,27 @@
       max-width: 500px;
     }
     .example-group {
-      margin-bottom: 40px;
+      margin-bottom: 80px;
+      padding-bottom: 80px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
-    code {
+
+    .example-group:last-child {
+      border-bottom: 0;
+    }
+
+    code, pre {
       display: block;
       white-space: pre;
       background-color: #eee;
       padding: 8px 16px;
       border-radius: 3px;
       margin-top: 8px;
+      overflow-x: auto;
+    }
+
+    pre {
+      white-space: pre-line;
     }
 
     .custom-button {
@@ -52,6 +65,7 @@
       height: 48px;
       transition: box-shadow 300ms ease;
     }
+
     .custom-button:hover {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
@@ -63,8 +77,10 @@
 </head>
 <body>
   <div id="examples"></div>
-  <script src="https://unpkg.com/react@15/dist/react.js"></script>
-  <script src="https://unpkg.com/react-dom@15/dist/react-dom.js"></script>
-  <script src="/assets/bundle.js"></script>
+  <script src="//unpkg.com/react@15/dist/react.js"></script>
+  <script src="//unpkg.com/react-dom@15/dist/react-dom.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/immutable/3.7.6/immutable.min.js"></script>
+  <script src="//facebook.github.io/draft-js/lib/Draft.js"></script>
+  <script src="/bundle.js"></script>
 </body>
 </html>

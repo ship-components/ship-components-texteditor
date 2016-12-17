@@ -7,7 +7,8 @@ $btn-size: 43px;
   margin: 0;
   width: $btn-size;
   height: $btn-size;
-  font-size: 20px;
+  line-height: $btn-size;
+  font-size: 18px;
   box-sizing: border-box;
   text-align: center;
   transition: all 300ms ease;
@@ -26,7 +27,8 @@ $btn-size: 43px;
   }
 }
 
-.btn.iconBtn {
+.btn.icon {
+  font-size: 20px;
   &:before {
     line-height: $btn-size;
   }

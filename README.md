@@ -125,7 +125,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
-0.2.0 - Switched to draft-js for core engine
+0.2.0 - Switched to draft-js for core engine, added inline link support
 0.1.0 - Initial
 
 ## License

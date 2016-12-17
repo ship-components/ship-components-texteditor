@@ -18,10 +18,15 @@ export default class StyleButton extends Component {
     return (
       <div
         className={classNames(this.props.className, css.btn, css.iconBtn, this.props.iconClass, {
+          [css.icon] : typeof this.props.iconClass === 'string',
           [css.active]: this.props.active
         })}
         onMouseDown={this.props.onMouseDown}
-      />
+      >
+        {typeof this.props.iconClass !== 'string' ?
+          this.props.label
+        : null}
+      </div>
     );
   }
 }

@@ -9,56 +9,16 @@ import classNames from 'classnames';
 import Immutable from 'immutable';
 import { Editor, EditorState, ContentState, convertFromHTML, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import Icon from 'ship-components-icon';
+
 import StyleButton from './StyleButton';
 import linkStrategy from './link/linkStrategy';
 import Link from './link/Link';
+import BlockTypes from './BlockTypes';
+import InlineStyles from './InlineStyles';
+import HtmlOptions from './HtmlOptions';
 
 // CSS Module
 import css from './TextEditor.css';
-
-/**
- * Avaiable inline styles to be used with draft-js
- * @type    {Array}
- */
-const INLINE_STYLES = [
-  {
-    label: 'Bold',
-    style: 'BOLD',
-    iconClass: Icon.format_bold
-  },
-  {
-    label: 'Italic',
-    style: 'ITALIC',
-    iconClass: Icon.format_italic
-  },
-  {
-    label: 'Underline',
-    style: 'UNDERLINE',
-    iconClass: Icon.format_underlined
-  }
-];
-
-/**
- * Options for convert to HTML
- * @see https://www.npmjs.com/package/draft-js-export-html
- * @type    {Object}
- */
-const TO_HTML_OPTIONS = {
-  inlineStyles: {
-    BOLD: {
-      element: 'b'
-    },
-    UNDERLINE: {
-      // When converting back to the right format this needs to be `u` otherwise
-      // wise draft-fs doesn't recognize it>
-      element: 'u'
-    },
-    ITALIC: {
-      element: 'i'
-    }
-  }
-};
 
 export default class TextEditor extends Component {
   constructor(props) {
@@ -96,6 +56,7 @@ export default class TextEditor extends Component {
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
+    this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
   }
 
   /**
@@ -137,7 +98,7 @@ export default class TextEditor extends Component {
     if (this.props.type === 'json') {
       return convertToRaw(content);
     } else if (this.props.type === 'html') {
-      return stateToHTML(content, TO_HTML_OPTIONS);
+      return stateToHTML(content, HtmlOptions);
     } else {
       return content;
     }
@@ -197,14 +158,29 @@ export default class TextEditor extends Component {
   handleInlineStyleClick(inlineStyle, event) {
     if (!this.props.editable) {
       return;
-    }
-
-    if (event) {
+    } else if (event) {
       event.preventDefault();
     }
 
     // Generate new state with inline style applied
     const editorState = RichUtils.toggleInlineStyle(this.state.editorState, inlineStyle);
+
+    // Update
+    this.handleEditorChange(editorState);
+  }
+
+  /**
+   * Toggle an inline style
+   */
+  handleBlockStyleClick(blockStyle, event) {
+    if (!this.props.editable) {
+      return;
+    } else if (event) {
+      event.preventDefault();
+    }
+
+    // Generate new state with block style applied
+    const editorState = RichUtils.toggleBlockType(this.state.editorState, blockStyle);
 
     // Update
     this.handleEditorChange(editorState);
@@ -223,7 +199,10 @@ export default class TextEditor extends Component {
 
     // Get the current style of the selection so we can change the look of the
     // buttons
-    const currentStyle = editorState.getCurrentInlineStyle();
+    const currentInlineStyle = editorState.getCurrentInlineStyle();
+
+    // Determing the current blockt ype
+    const blockType = editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
 
     return (
       <div className={classNames(css.container, this.props.className, 'text-editor', {
@@ -234,7 +213,7 @@ export default class TextEditor extends Component {
       })}>
         {this.props.editable ?
           <div className={css.controls}>
-            {INLINE_STYLES
+            {InlineStyles
               // Allow user to select styles to show
               .filter(type => this.props.inlineStyles.has(type.style))
               .map(type => {
@@ -243,12 +222,26 @@ export default class TextEditor extends Component {
                     key={type.style}
                     editorState={editorState}
                     // Determine if the style is active or not
-                    active={selectionState.getHasFocus() && currentStyle.has(type.style)}
+                    active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
                     onMouseDown={this.handleInlineStyleClick.bind(this, type.style)}
                     {...type}
                   />
                 );
               })}
+              {BlockTypes
+                // Allow user to select styles to show
+                .filter(type => this.props.blockTypes.has(type.style))
+                .map(type => {
+                  return (
+                    <StyleButton
+                      key={type.style}
+                      editorState={editorState}
+                      active={type.style === blockType}
+                      onMouseDown={this.handleBlockStyleClick.bind(this, type.style)}
+                      {...type}
+                    />
+                  );
+                })}
           </div>
         : null}
         <div
@@ -280,6 +273,7 @@ export default class TextEditor extends Component {
  */
 TextEditor.propTypes = {
   inlineStyles: PropTypes.instanceOf(Immutable.Set),
+  blockTypes: PropTypes.instanceOf(Immutable.Set),
   focusTimeout: PropTypes.number,
   tabIndex: PropTypes.number,
   className: PropTypes.string,
@@ -296,7 +290,8 @@ TextEditor.propTypes = {
  * @type    {Object}
  */
 TextEditor.defaultProps = {
-  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE']),
+  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
+  blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
   focusTimeout: 500,
   editable: true,
   type: 'html',

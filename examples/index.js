@@ -4,7 +4,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Immutable from 'immutable';
 import TextEditor from '../src/TextEditor';
 
 class Examples extends React.Component {
@@ -12,7 +11,7 @@ class Examples extends React.Component {
   constructor(props) {
     super(props);
     this.state ={
-      basic: '<p>This is <b>some </b><u><b>sample</b></u> <i><b>text</b></i> google.com</p>',
+      basic: '<h1>Titles</h1><p>Here is <b>some </b><u><b>sample</b></u> <i><b>text</b></i> With links to google.com</p><blockquote>"And some quotes too"</blockquote><ul><li>Event Bullets!</li></ul>',
       json: ''
     };
 
@@ -34,7 +33,6 @@ class Examples extends React.Component {
           <TextEditor
             editable
             type='html'
-            inlineStyles={new Immutable.Set(['BOLD', 'UNDERLINE', 'ITALIC', 'LINK'])}
             onChange={this.handleChange.bind(this, 'basic')}
             value={this.state.basic}
           />
@@ -60,7 +58,6 @@ class Examples extends React.Component {
           <TextEditor
             editable
             type='json'
-            inlineStyles={new Immutable.Set(['BOLD', 'UNDERLINE', 'ITALIC'])}
             placeholder='Enter some text here and see the json result...'
             onChange={this.handleChange.bind(this, 'json')}
             value={this.state.json}

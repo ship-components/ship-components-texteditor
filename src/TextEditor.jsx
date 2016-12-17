@@ -7,10 +7,12 @@
 import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, ContentState, convertFromHTML, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
+import { Editor, EditorState, ContentState, convertFromHTML, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import Icon from 'ship-components-icon';
 import StyleButton from './StyleButton';
+import linkStrategy from './link/linkStrategy';
+import Link from './link/Link';
 
 // CSS Module
 import css from './TextEditor.css';
@@ -34,11 +36,6 @@ const INLINE_STYLES = [
     label: 'Underline',
     style: 'UNDERLINE',
     iconClass: Icon.format_underlined
-  },
-  {
-    label: 'Link',
-    style: 'LINK',
-    iconClass: Icon.insert_link
   }
 ];
 
@@ -67,13 +64,34 @@ export default class TextEditor extends Component {
   constructor(props) {
     super(props);
 
+
+    // Convert incoming to somethign draft-js friendly
     const content = this.convertContentFrom(props);
 
+    // Configure custom decorators
+    let decorators = [];
+
+    // Convert links inline
+    if (props.convertLinksInline) {
+      decorators.push({
+        strategy: linkStrategy,
+        component: Link
+      });
+    }
+
+    // Setup decorators
+    const compositeDecorator = new CompositeDecorator(decorators);
+
+    // Create State
+    const editorState = EditorState.createWithContent(content, compositeDecorator);
+
+    // Set state the first time
     this.state = {
       focus: false,
-      editorState: EditorState.createWithContent(content)
+      editorState
     };
 
+    // Binding
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.focus = this.focus.bind(this);
@@ -180,6 +198,7 @@ export default class TextEditor extends Component {
     if (!this.props.editable) {
       return;
     }
+
     if (event) {
       event.preventDefault();
     }
@@ -268,6 +287,7 @@ TextEditor.propTypes = {
   value: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['html', 'json', 'Immutable']),
   spellCheck: PropTypes.bool,
+  convertLinksInline: PropTypes.bool,
   stripPastedStyles: PropTypes.bool
 };
 
@@ -281,5 +301,6 @@ TextEditor.defaultProps = {
   editable: true,
   type: 'html',
   spellCheck: true,
+  convertLinksInline: true,
   stripPastedStyles: true
 };

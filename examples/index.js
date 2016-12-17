@@ -12,7 +12,7 @@ class Examples extends React.Component {
   constructor(props) {
     super(props);
     this.state ={
-      basic: '<p>This is <b>some </b><u><b>sample</b></u> <i><b>text</b></i></p>',
+      basic: '<p>This is <b>some </b><u><b>sample</b></u> <i><b>text</b></i> google.com</p>',
       json: ''
     };
 
@@ -34,7 +34,7 @@ class Examples extends React.Component {
           <TextEditor
             editable
             type='html'
-            inlineStyles={new Immutable.Set(['BOLD', 'UNDERLINE', 'ITALIC'])}
+            inlineStyles={new Immutable.Set(['BOLD', 'UNDERLINE', 'ITALIC', 'LINK'])}
             onChange={this.handleChange.bind(this, 'basic')}
             value={this.state.basic}
           />

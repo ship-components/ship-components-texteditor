@@ -1,4 +1,4 @@
-$btn-size: 43px;
+$btn-size: 42px;
 
 .btn {
   outline: none;
@@ -8,7 +8,7 @@ $btn-size: 43px;
   width: $btn-size;
   height: $btn-size;
   line-height: $btn-size;
-  font-size: 18px;
+  font-size: 16px;
   box-sizing: border-box;
   text-align: center;
   transition: all 300ms ease;

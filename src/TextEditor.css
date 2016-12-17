@@ -9,6 +9,7 @@
 .controls {
   user-select: none;
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 1px solid rgba(0, 0, 0, 0.11);
   margin: $base-grid-size calc($base-grid-size * -1);
 }

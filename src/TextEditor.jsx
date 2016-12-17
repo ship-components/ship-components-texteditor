@@ -219,6 +219,7 @@ export default class TextEditor extends Component {
               .map(type => {
                 return (
                   <StyleButton
+                    className={this.props.buttonClass}
                     key={type.style}
                     editorState={editorState}
                     // Determine if the style is active or not
@@ -234,6 +235,7 @@ export default class TextEditor extends Component {
                 .map(type => {
                   return (
                     <StyleButton
+                      className={this.props.buttonClass}
                       key={type.style}
                       editorState={editorState}
                       active={type.style === blockType}
@@ -277,6 +279,7 @@ TextEditor.propTypes = {
   focusTimeout: PropTypes.number,
   tabIndex: PropTypes.number,
   className: PropTypes.string,
+  buttonClass: PropTypes.string,
   editable: PropTypes.bool,
   value: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['html', 'json', 'Immutable']),

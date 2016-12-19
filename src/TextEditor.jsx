@@ -70,6 +70,7 @@ export default class TextEditor extends Component {
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
+    this.forceUpdate = this.forceUpdate.bind(this);
   }
 
   /**
@@ -79,6 +80,23 @@ export default class TextEditor extends Component {
     return nextProps.editable !== this.props.editable ||
            nextState.focus !== this.state.focus ||
            nextState.editorState !== this.state.editorState;
+  }
+
+  /**
+   * Public method to cause the editor to reread it's props.value. Often used
+   * when resetting the form.
+   * @public
+   * @example this.refs.editor.forceUpdate();
+   */
+  forceUpdate(props = this.props) {
+    // Convert incoming to somethign draft-js friendly
+    const content = this.convertContentFrom(props);
+
+    // Generate new date
+    const updatedEditorState = EditorState.push(this.state.editorState, content);
+
+    // Update
+    this.handleEditorChange(updatedEditorState);
   }
 
   /**
@@ -283,7 +301,6 @@ export default class TextEditor extends Component {
 TextEditor.propTypes = {
   inlineStyles: PropTypes.instanceOf(Immutable.Set),
   blockTypes: PropTypes.instanceOf(Immutable.Set),
-  focusTimeout: PropTypes.number,
   tabIndex: PropTypes.number,
   className: PropTypes.string,
   buttonClass: PropTypes.string,
@@ -302,7 +319,6 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
   inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
-  focusTimeout: 500,
   editable: true,
   type: 'html',
   spellCheck: true,

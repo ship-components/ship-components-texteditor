@@ -37,7 +37,7 @@ export default class StyleButton extends Component {
  * @type    {Object}
  */
 StyleButton.propTypes = {
-  iconClass: PropTypes.string.isRequired,
+  iconClass: PropTypes.string,
   style: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   active: PropTypes.bool.isRequired,

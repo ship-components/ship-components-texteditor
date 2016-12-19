@@ -2,7 +2,7 @@
   "name": "ship-components-texteditor",
   "version": "0.2.0",
   "description": "Rich Text Editor for React",
-  "main": "src/TextEditor.jsx",
+  "main": "src/TextEditor.js",
   "scripts": {
     "start": "grunt server",
     "build": "grunt build",

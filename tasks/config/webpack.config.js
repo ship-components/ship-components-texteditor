@@ -9,7 +9,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = {
   // Where to start
   entry: {
-    TextEditor: './src/TextEditor.jsx'
+    TextEditor: './src/TextEditor.js'
   },
 
   // Where to output

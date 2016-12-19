@@ -1,5 +1,5 @@
 # ship-components-texteditor
-[React](http://facebook.github.io/react/) rich text editor built on draft-js. Exports a commonjs module that can be used with [webpack](http://webpack.github.io/). Source is in ES6 and is compiled down to ES5 using [Babel](https://babeljs.io/).
+[React](http://facebook.github.io/react/) rich text editor built on [draft-js](https://facebook.github.io/draft-js/). Exports a commonjs module that can be used with [webpack](http://webpack.github.io/). Source is in ES6 and is compiled down to ES5 using [Babel](https://babeljs.io/).
 
 [![npm](https://img.shields.io/npm/v/ship-components-texteditor.svg?maxAge=2592000)](https://www.npmjs.com/package/ship-components-texteditor)
 [![dependencies](https://img.shields.io/david/ship-components/ship-components-texteditor.svg?style=flat)](https://david-dm.org/ship-components/ship-components-texteditor)
@@ -125,7 +125,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
-0.2.0 - Switched to draft-js for core engine, added inline link support
+0.2.0 - Switched to draft-js for core engine, added inline link support, added more styles
 0.1.0 - Initial
 
 ## License

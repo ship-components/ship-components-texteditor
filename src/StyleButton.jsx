@@ -23,6 +23,7 @@ export default class StyleButton extends Component {
           [css.active]: this.props.active
         })}
         onMouseDown={this.props.onMouseDown}
+        title={this.props.title}
       >
         {typeof this.props.iconClass !== 'string' ?
           this.props.label
@@ -41,5 +42,6 @@ StyleButton.propTypes = {
   style: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   active: PropTypes.bool.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  title: PropTypes.string
 };

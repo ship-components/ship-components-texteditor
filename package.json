@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -25,7 +25,11 @@
   },
   "homepage": "https://github.com/ship-components/ship-components-texteditor",
   "dependencies": {
-    "ship-components-icon": "^0.1.0"
+    "draft-js": "^0.9.1",
+    "draft-js-export-html": "^0.5.2",
+    "linkify-it": "^2.0.2",
+    "ship-components-icon": "^0.1.0",
+    "tlds": "^1.180.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.4",
@@ -40,8 +44,6 @@
     "babel-runtime": "^6.20.0",
     "classnames": "^2.2.5",
     "css-loader": "^0.26.1",
-    "draft-js": "^0.9.1",
-    "draft-js-export-html": "^0.5.2",
     "eslint": "^3.12.2",
     "eslint-loader": "^1.6.1",
     "eslint-plugin-react": "^6.8.0",
@@ -50,7 +52,6 @@
     "grunt": "^0.4.5",
     "grunt-webpack": "^1.0.18",
     "immutable": "^3.8.1",
-    "linkify-it": "^2.0.2",
     "package-banner": "^0.1.1",
     "postcss-calc": "^5.3.1",
     "postcss-color-function": "^2.0.1",
@@ -61,7 +62,6 @@
     "react": ">=15.0.0",
     "react-dom": ">=15.0.0",
     "style-loader": "^0.13.1",
-    "tlds": "^1.180.0",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
   }

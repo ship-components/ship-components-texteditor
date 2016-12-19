@@ -125,8 +125,9 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
-0.2.0 - Switched to draft-js for core engine, added inline link support, added more styles
-0.1.0 - Initial
+* 0.2.1 - Fixed devDeps -> deps issue
+* 0.2.0 - Switched to draft-js for core engine, added inline link support, added more styles
+* 0.1.0 - Initial
 
 ## License
 The MIT License (MIT)

@@ -280,7 +280,7 @@ export default class TextEditor extends Component {
             editorState={editorState}
             onChange={this.handleEditorChange}
             handleKeyCommand={this.handleKeyCommand}
-            placeholder={this.props.placeholder}
+            placeholder={this.props.editable ? this.props.placeholder : void 0}
             readOnly={!this.props.editable}
             onFocus={this.props.onFocus}
             onBlur={this.props.onBlur}

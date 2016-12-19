@@ -17,27 +17,40 @@ import BlockTypes from './BlockTypes';
 import InlineStyles from './InlineStyles';
 import HtmlOptions from './HtmlOptions';
 
+import ChangeEvent from './ChangeEvent';
+
 // CSS Module
 import css from './TextEditor.css';
+
+/**
+ * Helper function to setup any decorators
+ * @param    {Object}    props
+ * @return   {Array<Object>}
+ */
+function setupDecorators(props) {
+  // Configure custom decorators
+  let decorators = [];
+
+  // Convert links inline
+  if (props.convertLinksInline) {
+    decorators.push({
+      strategy: linkStrategy,
+      component: Link
+    });
+  }
+
+  return decorators;
+}
 
 export default class TextEditor extends Component {
   constructor(props) {
     super(props);
 
-
     // Convert incoming to somethign draft-js friendly
     const content = this.convertContentFrom(props);
 
     // Configure custom decorators
-    let decorators = [];
-
-    // Convert links inline
-    if (props.convertLinksInline) {
-      decorators.push({
-        strategy: linkStrategy,
-        component: Link
-      });
-    }
+    let decorators = setupDecorators(props);
 
     // Setup decorators
     const compositeDecorator = new CompositeDecorator(decorators);
@@ -69,13 +82,6 @@ export default class TextEditor extends Component {
   }
 
   /**
-   * Clean up
-   */
-  componentWillUnmount() {
-    clearTimeout(this.blueTimeoutId);
-  }
-
-  /**
    * Get the content depending on the type of data we're passing around
    */
   convertContentFrom(props = this.props) {
@@ -95,6 +101,7 @@ export default class TextEditor extends Component {
    */
   convertContentTo() {
     const content = this.state.editorState.getCurrentContent();
+
     if (this.props.type === 'json') {
       return convertToRaw(content);
     } else if (this.props.type === 'html') {
@@ -135,12 +142,12 @@ export default class TextEditor extends Component {
       // the application. Should remove this eventually
       const value = this.convertContentTo();
 
-      // limit change events to only times it changed
-      this.props.onChange({
-        target: {
-          value
-        }
+      let event = new ChangeEvent(value, {
+        ref: this
       });
+
+      // limit change events to only times it changed
+      this.props.onChange(event);
     });
   }
 

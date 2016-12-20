@@ -88,7 +88,7 @@ export default class TextEditor extends Component {
    * @public
    * @example this.refs.editor.forceUpdate();
    */
-  forceUpdate(props = this.props) {
+  forceUpdateState(props = this.props) {
     // Convert incoming to somethign draft-js friendly
     const content = this.convertContentFrom(props);
 

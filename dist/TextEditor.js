@@ -5,7 +5,7 @@
  *  \___ \|   Y  \  |  |_> > /_____/ \  \__(  <_> )  Y Y  \  |_> >  <_> )   |  \  ___/|   |  \  |  \___ \  /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
  * /____  >___|  /__|   __/           \___  >____/|__|_|  /   __/ \____/|___|  /\___  >___|  /__| /____  >          |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *      \/     \/   |__|                  \/            \/|__|               \/     \/     \/          \/                     \/      \/           \/     \/                        
- * ship-components-texteditor 0.2.0
+ * ship-components-texteditor 0.2.2
  * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/ship-components/ship-components-texteditor
@@ -215,7 +215,7 @@ module.exports =
 	   */
 
 
-	  TextEditor.prototype.forceUpdate = function forceUpdate() {
+	  TextEditor.prototype.forceUpdateState = function forceUpdateState() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
 
 	    // Convert incoming to somethign draft-js friendly

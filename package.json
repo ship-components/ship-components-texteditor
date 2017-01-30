@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -24,6 +24,16 @@
     "url": "https://github.com/ship-components/ship-components-texteditor/issues"
   },
   "homepage": "https://github.com/ship-components/ship-components-texteditor",
+  "contributors": [
+    {
+      "name": "Isaac Suttell",
+      "email": "isaac_suttell@playstation.sony.com"
+    },
+    {
+      "name": "Sepand Assadi",
+      "email": "sepand_assadi@playstation.sony.com"
+    }
+  ],
   "dependencies": {
     "draft-js": "^0.9.1",
     "draft-js-export-html": "^0.5.2",

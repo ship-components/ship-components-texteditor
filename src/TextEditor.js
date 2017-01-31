@@ -70,6 +70,7 @@ export default class TextEditor extends Component {
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
+    this.convertHTMLToString = this.convertHTMLToString.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -124,9 +125,24 @@ export default class TextEditor extends Component {
       return convertToRaw(content);
     } else if (this.props.type === 'html') {
       return stateToHTML(content, HtmlOptions);
+    } else if (this.props.type === 'text') {
+      return this.convertHTMLToString(content);
     } else {
       return content;
     }
+  }
+
+  /**
+   * Removes the HTML tags from Strings
+   *
+   * @param     {String}    str
+   * @return    {String}    str
+   */
+  convertHTMLToString(str) {
+    if (typeof str !== 'string') {
+      return str;
+    }
+    return str.replace(/<\/?[^>]+(>|$)/g, '');
   }
 
   /**

@@ -125,6 +125,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 0.2.3 - Added an option to remove HTML tags from string when passing prop type='text'
 * 0.2.2 - Renamed method to forceUpdateState to avoid name conflict
 * 0.2.1 - Fixed devDeps -> deps issue
 * 0.2.0 - Switched to draft-js for core engine, added inline link support, added more styles

@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -27,11 +27,11 @@
   "contributors": [
     {
       "name": "Isaac Suttell",
-      "email": "isaac_suttell@playstation.sony.com"
+      "email": "isaac.suttell@sony.com"
     },
     {
       "name": "Sepand Assadi",
-      "email": "sepand_assadi@playstation.sony.com"
+      "email": "sepand.assadi@sony.com"
     }
   ],
   "dependencies": {

@@ -72,6 +72,34 @@ class Examples extends React.Component {
           </div>
         </div>
         <div className='example-group'>
+          <h2>Basic (HTML) with only Inline buttons</h2>
+          <TextEditor
+            onlyInline
+            editable
+            type='html'
+            onChange={this.handleChange.bind(this, 'basic')}
+            value={this.state.basic}
+          />
+          <div>
+            <h3>Result</h3>
+            <pre>{this.state.basic}</pre>
+          </div>
+        </div>
+        <div className='example-group'>
+          <h2>Basic (HTML) with no style buttons</h2>
+          <TextEditor
+            noStyleButtons
+            editable
+            type='html'
+            onChange={this.handleChange.bind(this, 'basic')}
+            value={this.state.basic}
+          />
+          <div>
+            <h3>Result</h3>
+            <pre>{this.state.basic}</pre>
+          </div>
+        </div>
+        <div className='example-group'>
           <h2>Basic Non Editable (HTML)</h2>
           <TextEditor
             editable={false}

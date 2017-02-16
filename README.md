@@ -125,6 +125,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 0.2.4 - Adds an option to pass in a prop to only show inline style buttons or no buttons.
 * 0.2.3 - Added an option to remove HTML tags from string when passing prop type='text'
 * 0.2.2 - Renamed method to forceUpdateState to avoid name conflict
 * 0.2.1 - Fixed devDeps -> deps issue

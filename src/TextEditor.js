@@ -244,6 +244,7 @@ export default class TextEditor extends Component {
 
     // Determing the current blockt ype
     const blockType = editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
+    const {noStyleButtons, onlyInline} = this.props;
 
     return (
       <div className={classNames(css.container, this.props.className, 'text-editor', {
@@ -252,7 +253,7 @@ export default class TextEditor extends Component {
         [css.editable]: this.props.editable,
         [css.focus] : this.state.focus
       })}>
-        {this.props.editable ?
+        {this.props.editable && !noStyleButtons ?
           <div className={css.controls}>
             {InlineStyles
               // Allow user to select styles to show
@@ -270,7 +271,7 @@ export default class TextEditor extends Component {
                   />
                 );
               })}
-              {BlockTypes
+              {!onlyInline ? BlockTypes
                 // Allow user to select styles to show
                 .filter(type => this.props.blockTypes.has(type.style))
                 .map(type => {
@@ -284,7 +285,7 @@ export default class TextEditor extends Component {
                       {...type}
                     />
                   );
-                })}
+                }) : null}
           </div>
         : null}
         <div
@@ -325,7 +326,9 @@ TextEditor.propTypes = {
   type: PropTypes.oneOf(['html', 'json', 'Immutable']),
   spellCheck: PropTypes.bool,
   convertLinksInline: PropTypes.bool,
-  stripPastedStyles: PropTypes.bool
+  stripPastedStyles: PropTypes.bool,
+  noStyleButtons: PropTypes.bool,
+  onlyInline: PropTypes.bool
 };
 
 /**
@@ -333,6 +336,8 @@ TextEditor.propTypes = {
  * @type    {Object}
  */
 TextEditor.defaultProps = {
+  noStyleButtons: false,
+  onlyInline: false,
   inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
   editable: true,

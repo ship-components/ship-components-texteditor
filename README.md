@@ -24,6 +24,11 @@ class Examples extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  <!-- Cause the text editor to update its internal state -->
+  forceUpdateState() {
+    return this.refs.editor.forceUpdateState();
+  }
+
   handleChange(key, event) {
     this.setState({
       [key]: event.target.value
@@ -37,6 +42,7 @@ class Examples extends React.Component {
         <div className='example-group'>
           <h2>Basic (HTML)</h2>
           <TextEditor
+            ref='editor'
             editable
             type='html'
             inlineStyles={new Immutable.Set(['BOLD', 'UNDERLINE', 'ITALIC'])}
@@ -50,6 +56,19 @@ class Examples extends React.Component {
 }
 
 ```
+
+#### Note (Using forceUpdateState)
+The function needs to be called in order to update the TextEditor internal state. Add the following code to the parent class to update TextEditor when the text value is changed. You may also need to implement the onFocus and / or onBlur methods to prevent the TextEditor from updating the internal state while user is typing which will cause double typing or cursur jumps around.
+```js
+forceUpdateState() {
+    if (this.refs.editor && typeof this.refs.editor.forceUpdateState === 'function') {
+      this.refs.editor.forceUpdateState();
+    } else if (process.env.NODE_ENV !== 'production') {
+      console.warn('this.refs.editor.forceUpdateState is not a function');
+    }
+  }
+
+  ```
 
 ## Examples and Development
 Examples can be found in the `examples/` folder. A development server can be run with:
@@ -125,6 +144,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 0.2.4 - Adds an option to pass in a prop to only show inline style buttons or no buttons.
 * 0.2.3 - Added an option to remove HTML tags from string when passing prop type='text'
 * 0.2.2 - Renamed method to forceUpdateState to avoid name conflict
 * 0.2.1 - Fixed devDeps -> deps issue

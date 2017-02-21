@@ -285,7 +285,7 @@ export default class TextEditor extends Component {
                       {...type}
                     />
                   );
-                }) : new Immutable.Set([])}
+                }) : null}
           </div>
         : null}
         <div

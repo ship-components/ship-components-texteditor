@@ -2,6 +2,8 @@
 [React](http://facebook.github.io/react/) rich text editor built on [draft-js](https://facebook.github.io/draft-js/). Exports a commonjs module that can be used with [webpack](http://webpack.github.io/). Source is in ES6 and is compiled down to ES5 using [Babel](https://babeljs.io/).
 
 [![npm](https://img.shields.io/npm/v/ship-components-texteditor.svg?maxAge=2592000)](https://www.npmjs.com/package/ship-components-texteditor)
+[![Build Status](http://img.shields.io/travis/ship-components/ship-components-texteditor/master.svg?style=flat)](https://travis-ci.org/ship-components/ship-components-texteditor)
+[![Coverage](http://img.shields.io/coveralls/ship-components/ship-components-texteditor.svg?style=flat)](https://coveralls.io/github/ship-components/ship-components-texteditor?branch=master)
 [![dependencies](https://img.shields.io/david/ship-components/ship-components-texteditor.svg?style=flat)](https://david-dm.org/ship-components/ship-components-texteditor)
 [![devDependencies](https://img.shields.io/david/dev/ship-components/ship-components-texteditor.svg?style=flat)](https://david-dm.org/ship-components/ship-components-texteditor?type=dev)
 
@@ -144,6 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 0.3.0 - Adds Tests, Travis CI and coverage
 * 0.2.4 - Adds an option to pass in a prop to only show inline style buttons or no buttons.
 * 0.2.3 - Added an option to remove HTML tags from string when passing prop type='text'
 * 0.2.2 - Renamed method to forceUpdateState to avoid name conflict

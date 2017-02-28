@@ -5,7 +5,7 @@
  *  \___ \|   Y  \  |  |_> > /_____/ \  \__(  <_> )  Y Y  \  |_> >  <_> )   |  \  ___/|   |  \  |  \___ \  /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
  * /____  >___|  /__|   __/           \___  >____/|__|_|  /   __/ \____/|___|  /\___  >___|  /__| /____  >          |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *      \/     \/   |__|                  \/            \/|__|               \/     \/     \/          \/                     \/      \/           \/     \/                        
- * ship-components-texteditor 0.2.2
+ * ship-components-texteditor 0.2.4
  * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/ship-components/ship-components-texteditor
@@ -133,7 +133,9 @@ module.exports =
 
 	var _TextEditor2 = _interopRequireDefault(_TextEditor);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	/**
 	 * Helper function to setup any decorators
@@ -194,6 +196,7 @@ module.exports =
 	    _this.focus = _this.focus.bind(_this);
 	    _this.handleInlineStyleClick = _this.handleInlineStyleClick.bind(_this);
 	    _this.handleBlockStyleClick = _this.handleBlockStyleClick.bind(_this);
+	    _this.convertHTMLToString = _this.convertHTMLToString.bind(_this);
 	    _this.forceUpdate = _this.forceUpdate.bind(_this);
 	    return _this;
 	  }
@@ -201,7 +204,6 @@ module.exports =
 	  /**
 	   * Performance catch
 	   */
-
 
 	  TextEditor.prototype.shouldComponentUpdate = function shouldComponentUpdate(nextProps, nextState) {
 	    return nextProps.editable !== this.props.editable || nextState.focus !== this.state.focus || nextState.editorState !== this.state.editorState;
@@ -213,7 +215,6 @@ module.exports =
 	   * @public
 	   * @example this.refs.editor.forceUpdate();
 	   */
-
 
 	  TextEditor.prototype.forceUpdateState = function forceUpdateState() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
@@ -231,7 +232,6 @@ module.exports =
 	  /**
 	   * Get the content depending on the type of data we're passing around
 	   */
-
 
 	  TextEditor.prototype.convertContentFrom = function convertContentFrom() {
 	    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.props;
@@ -251,7 +251,6 @@ module.exports =
 	   * Convert the content depending on what the parent wants
 	   */
 
-
 	  TextEditor.prototype.convertContentTo = function convertContentTo() {
 	    var content = this.state.editorState.getCurrentContent();
 
@@ -259,15 +258,30 @@ module.exports =
 	      return (0, _draftJs.convertToRaw)(content);
 	    } else if (this.props.type === 'html') {
 	      return (0, _draftJsExportHtml.stateToHTML)(content, _HtmlOptions2.default);
+	    } else if (this.props.type === 'text') {
+	      return this.convertHTMLToString(content);
 	    } else {
 	      return content;
 	    }
 	  };
 
 	  /**
-	   * Keyboard shortcuts
+	   * Removes the HTML tags from Strings
+	   *
+	   * @param     {String}    str
+	   * @return    {String}    str
 	   */
 
+	  TextEditor.prototype.convertHTMLToString = function convertHTMLToString(str) {
+	    if (typeof str !== 'string') {
+	      return str;
+	    }
+	    return str.replace(/<\/?[^>]+(>|$)/g, '');
+	  };
+
+	  /**
+	   * Keyboard shortcuts
+	   */
 
 	  TextEditor.prototype.handleKeyCommand = function handleKeyCommand(command) {
 	    var newEditorStatue = _draftJs.RichUtils.handleKeyCommand(this.state.editorState, command);
@@ -281,7 +295,6 @@ module.exports =
 	  /**
 	   * Text editor change
 	   */
-
 
 	  TextEditor.prototype.handleEditorChange = function handleEditorChange(editorState) {
 	    var _this2 = this;
@@ -315,7 +328,6 @@ module.exports =
 	   * @public
 	   */
 
-
 	  TextEditor.prototype.focus = function focus() {
 	    this.refs.editor.focus();
 	  };
@@ -323,7 +335,6 @@ module.exports =
 	  /**
 	   * Toggle an inline style
 	   */
-
 
 	  TextEditor.prototype.handleInlineStyleClick = function handleInlineStyleClick(inlineStyle, event) {
 	    if (!this.props.editable) {
@@ -342,7 +353,6 @@ module.exports =
 	  /**
 	   * Toggle an inline style
 	   */
-
 
 	  TextEditor.prototype.handleBlockStyleClick = function handleBlockStyleClick(blockStyle, event) {
 	    if (!this.props.editable) {
@@ -363,7 +373,6 @@ module.exports =
 	   * @return    {React}
 	   */
 
-
 	  TextEditor.prototype.render = function render() {
 	    var _classNames,
 	        _this3 = this;
@@ -381,65 +390,54 @@ module.exports =
 
 	    // Determing the current blockt ype
 	    var blockType = editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
+	    var _props = this.props,
+	        noStyleButtons = _props.noStyleButtons,
+	        onlyInline = _props.onlyInline;
 
-	    return _react2.default.createElement(
-	      'div',
-	      { className: (0, _classnames2.default)(_TextEditor2.default.container, this.props.className, 'text-editor', (_classNames = {
-	          'text-editor--editable': this.props.editable,
-	          'text-editor--focus': this.state.focus
-	        }, (0, _defineProperty3.default)(_classNames, _TextEditor2.default.editable, this.props.editable), (0, _defineProperty3.default)(_classNames, _TextEditor2.default.focus, this.state.focus), _classNames)) },
-	      this.props.editable ? _react2.default.createElement(
-	        'div',
-	        { className: _TextEditor2.default.controls },
-	        _InlineStyles2.default
-	        // Allow user to select styles to show
-	        .filter(function (type) {
-	          return _this3.props.inlineStyles.has(type.style);
-	        }).map(function (type) {
-	          return _react2.default.createElement(_StyleButton2.default, (0, _extends3.default)({
-	            className: _this3.props.buttonClass,
-	            key: type.style,
-	            editorState: editorState
-	            // Determine if the style is active or not
-	            , active: selectionState.getHasFocus() && currentInlineStyle.has(type.style),
-	            onMouseDown: _this3.handleInlineStyleClick.bind(_this3, type.style)
-	          }, type));
-	        }),
-	        _BlockTypes2.default
-	        // Allow user to select styles to show
-	        .filter(function (type) {
-	          return _this3.props.blockTypes.has(type.style);
-	        }).map(function (type) {
-	          return _react2.default.createElement(_StyleButton2.default, (0, _extends3.default)({
-	            className: _this3.props.buttonClass,
-	            key: type.style,
-	            editorState: editorState,
-	            active: type.style === blockType,
-	            onMouseDown: _this3.handleBlockStyleClick.bind(_this3, type.style)
-	          }, type));
-	        })
-	      ) : null,
-	      _react2.default.createElement(
-	        'div',
-	        {
-	          onClick: this.focus,
-	          className: _TextEditor2.default.editor
-	        },
-	        _react2.default.createElement(_draftJs.Editor, {
-	          ref: 'editor',
-	          editorState: editorState,
-	          onChange: this.handleEditorChange,
-	          handleKeyCommand: this.handleKeyCommand,
-	          placeholder: this.props.editable ? this.props.placeholder : void 0,
-	          readOnly: !this.props.editable,
-	          onFocus: this.props.onFocus,
-	          onBlur: this.props.onBlur,
-	          stripPastedStyles: this.props.stripPastedStyles,
-	          spellCheck: this.props.spellCheck,
-	          tabIndex: this.props.tabIndex
-	        })
-	      )
-	    );
+	    return _react2.default.createElement('div', { className: (0, _classnames2.default)(_TextEditor2.default.container, this.props.className, 'text-editor', (_classNames = {
+	        'text-editor--editable': this.props.editable,
+	        'text-editor--focus': this.state.focus
+	      }, (0, _defineProperty3.default)(_classNames, _TextEditor2.default.editable, this.props.editable), (0, _defineProperty3.default)(_classNames, _TextEditor2.default.focus, this.state.focus), _classNames)) }, this.props.editable && !noStyleButtons ? _react2.default.createElement('div', { className: _TextEditor2.default.controls }, _InlineStyles2.default
+	    // Allow user to select styles to show
+	    .filter(function (type) {
+	      return _this3.props.inlineStyles.has(type.style);
+	    }).map(function (type) {
+	      return _react2.default.createElement(_StyleButton2.default, (0, _extends3.default)({
+	        className: _this3.props.buttonClass,
+	        key: type.style,
+	        editorState: editorState
+	        // Determine if the style is active or not
+	        , active: selectionState.getHasFocus() && currentInlineStyle.has(type.style),
+	        onMouseDown: _this3.handleInlineStyleClick.bind(_this3, type.style)
+	      }, type));
+	    }), !onlyInline ? _BlockTypes2.default
+	    // Allow user to select styles to show
+	    .filter(function (type) {
+	      return _this3.props.blockTypes.has(type.style);
+	    }).map(function (type) {
+	      return _react2.default.createElement(_StyleButton2.default, (0, _extends3.default)({
+	        className: _this3.props.buttonClass,
+	        key: type.style,
+	        editorState: editorState,
+	        active: type.style === blockType,
+	        onMouseDown: _this3.handleBlockStyleClick.bind(_this3, type.style)
+	      }, type));
+	    }) : null) : null, _react2.default.createElement('div', {
+	      onClick: this.focus,
+	      className: _TextEditor2.default.editor
+	    }, _react2.default.createElement(_draftJs.Editor, {
+	      ref: 'editor',
+	      editorState: editorState,
+	      onChange: this.handleEditorChange,
+	      handleKeyCommand: this.handleKeyCommand,
+	      placeholder: this.props.editable ? this.props.placeholder : void 0,
+	      readOnly: !this.props.editable,
+	      onFocus: this.props.onFocus,
+	      onBlur: this.props.onBlur,
+	      stripPastedStyles: this.props.stripPastedStyles,
+	      spellCheck: this.props.spellCheck,
+	      tabIndex: this.props.tabIndex
+	    })));
 	  };
 
 	  return TextEditor;
@@ -449,7 +447,6 @@ module.exports =
 	 * Type checking
 	 * @type    {Object}
 	 */
-
 
 	exports.default = TextEditor;
 	TextEditor.propTypes = {
@@ -463,7 +460,9 @@ module.exports =
 	  type: _react.PropTypes.oneOf(['html', 'json', 'Immutable']),
 	  spellCheck: _react.PropTypes.bool,
 	  convertLinksInline: _react.PropTypes.bool,
-	  stripPastedStyles: _react.PropTypes.bool
+	  stripPastedStyles: _react.PropTypes.bool,
+	  noStyleButtons: _react.PropTypes.bool,
+	  onlyInline: _react.PropTypes.bool
 	};
 
 	/**
@@ -471,6 +470,8 @@ module.exports =
 	 * @type    {Object}
 	 */
 	TextEditor.defaultProps = {
+	  noStyleButtons: false,
+	  onlyInline: false,
 	  inlineStyles: new _immutable2.default.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
 	  blockTypes: new _immutable2.default.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
 	  editable: true,
@@ -1549,8 +1550,8 @@ module.exports =
 	                      .map(escapeRE)
 	                      .join('|');
 	  // (?!_) cause 1.5x slowdown
-	  self.re.schema_test   = RegExp('(^|(?!_)(?:[><]|' + re.src_ZPCc + '))(' + slist + ')', 'i');
-	  self.re.schema_search = RegExp('(^|(?!_)(?:[><]|' + re.src_ZPCc + '))(' + slist + ')', 'ig');
+	  self.re.schema_test   = RegExp('(^|(?!_)(?:[><\uff5c]|' + re.src_ZPCc + '))(' + slist + ')', 'i');
+	  self.re.schema_search = RegExp('(^|(?!_)(?:[><\uff5c]|' + re.src_ZPCc + '))(' + slist + ')', 'ig');
 
 	  self.re.pretest       = RegExp(
 	                            '(' + self.re.schema_test.source + ')|' +
@@ -2257,6 +2258,7 @@ module.exports =
 	  "dabur",
 	  "dad",
 	  "dance",
+	  "data",
 	  "date",
 	  "dating",
 	  "datsun",
@@ -2408,6 +2410,7 @@ module.exports =
 	  "ftr",
 	  "fujitsu",
 	  "fujixerox",
+	  "fun",
 	  "fund",
 	  "furniture",
 	  "futbol",
@@ -2539,7 +2542,6 @@ module.exports =
 	  "ie",
 	  "ieee",
 	  "ifm",
-	  "iinet",
 	  "ikano",
 	  "il",
 	  "im",
@@ -2753,6 +2755,7 @@ module.exports =
 	  "mn",
 	  "mo",
 	  "mobi",
+	  "mobile",
 	  "mobily",
 	  "moda",
 	  "moe",
@@ -2783,7 +2786,6 @@ module.exports =
 	  "mu",
 	  "museum",
 	  "mutual",
-	  "mutuelle",
 	  "mv",
 	  "mw",
 	  "mx",
@@ -2889,6 +2891,7 @@ module.exports =
 	  "ph",
 	  "pharmacy",
 	  "philips",
+	  "phone",
 	  "photo",
 	  "photography",
 	  "photos",
@@ -3498,7 +3501,9 @@ module.exports =
 
 	var _shipComponentsIcon2 = _interopRequireDefault(_shipComponentsIcon);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	/**
 	 * block styles to be used with draft-js
@@ -3565,7 +3570,9 @@ module.exports =
 
 	var _createClass3 = _interopRequireDefault(_createClass2);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	/**
 	 * Custom event class to pass around values
@@ -3586,7 +3593,6 @@ module.exports =
 	   * Returns the same path as a default event
 	   * @return    {Object}
 	   */
-
 
 	  (0, _createClass3.default)(ChangeEvent, [{
 	    key: 'target',
@@ -3647,7 +3653,9 @@ module.exports =
 
 	var _shipComponentsIcon2 = _interopRequireDefault(_shipComponentsIcon);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	/**
 	 * inline styles to be used with draft-js
@@ -3715,7 +3723,9 @@ module.exports =
 
 	var _StyleButton2 = _interopRequireDefault(_StyleButton);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	var StyleButton = function (_Component) {
 	  (0, _inherits3.default)(StyleButton, _Component);
@@ -3732,15 +3742,11 @@ module.exports =
 	  StyleButton.prototype.render = function render() {
 	    var _classNames;
 
-	    return _react2.default.createElement(
-	      'div',
-	      {
-	        className: (0, _classnames2.default)(this.props.className, 'text-editor---btn', _StyleButton2.default.btn, this.props.iconClass, (_classNames = {}, (0, _defineProperty3.default)(_classNames, _StyleButton2.default.icon, typeof this.props.iconClass === 'string'), (0, _defineProperty3.default)(_classNames, 'text-editor--btn-active', this.props.active), (0, _defineProperty3.default)(_classNames, _StyleButton2.default.active, this.props.active), _classNames)),
-	        onMouseDown: this.props.onMouseDown,
-	        title: this.props.title
-	      },
-	      typeof this.props.iconClass !== 'string' ? this.props.label : null
-	    );
+	    return _react2.default.createElement('div', {
+	      className: (0, _classnames2.default)(this.props.className, 'text-editor---btn', _StyleButton2.default.btn, this.props.iconClass, (_classNames = {}, (0, _defineProperty3.default)(_classNames, _StyleButton2.default.icon, typeof this.props.iconClass === 'string'), (0, _defineProperty3.default)(_classNames, 'text-editor--btn-active', this.props.active), (0, _defineProperty3.default)(_classNames, _StyleButton2.default.active, this.props.active), _classNames)),
+	      onMouseDown: this.props.onMouseDown,
+	      title: this.props.title
+	    }, typeof this.props.iconClass !== 'string' ? this.props.label : null);
 	  };
 
 	  return StyleButton;
@@ -3750,7 +3756,6 @@ module.exports =
 	 * Type checking
 	 * @type    {Object}
 	 */
-
 
 	// CSS Module
 	/**
@@ -3802,7 +3807,9 @@ module.exports =
 
 	var _tlds2 = _interopRequireDefault(_tlds);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	var linkify = (0, _linkifyIt2.default)(); /**
 	                                           * Used to render a link
@@ -3848,11 +3855,7 @@ module.exports =
 	      alt: alt
 	    };
 
-	    return _react2.default.createElement(
-	      'a',
-	      props,
-	      children
-	    );
+	    return _react2.default.createElement('a', props, children);
 	  };
 
 	  return Link;
@@ -3890,7 +3893,9 @@ module.exports =
 
 	var _tlds2 = _interopRequireDefault(_tlds);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { default: obj };
+	}
 
 	// Setup
 	var linkify = (0, _linkifyIt2.default)();
@@ -4893,7 +4898,7 @@ module.exports =
 	  value: true
 	});
 
-	var _CSSProperty = __webpack_require__(121);
+	var _CSSProperty = __webpack_require__(117);
 
 	var VENDOR_PREFIX = /^(moz|ms|o|webkit)-/;
 
@@ -5836,10 +5841,10 @@ module.exports =
 	  var re = {};
 
 	  // Use direct extract instead of `regenerate` to reduse browserified size
-	  re.src_Any = __webpack_require__(120).source;
-	  re.src_Cc  = __webpack_require__(117).source;
-	  re.src_Z   = __webpack_require__(119).source;
-	  re.src_P   = __webpack_require__(118).source;
+	  re.src_Any = __webpack_require__(121).source;
+	  re.src_Cc  = __webpack_require__(118).source;
+	  re.src_Z   = __webpack_require__(120).source;
+	  re.src_P   = __webpack_require__(119).source;
 
 	  // \p{\Z\P\Cc\CF} (white spaces + control + format + punctuation)
 	  re.src_ZPCc = [ re.src_Z, re.src_P, re.src_Cc ].join('|');
@@ -5847,10 +5852,14 @@ module.exports =
 	  // \p{\Z\Cc} (white spaces + control)
 	  re.src_ZCc = [ re.src_Z, re.src_Cc ].join('|');
 
+	  // Experimental. List of chars, completely prohibited in links
+	  // because can separate it from other part of text
+	  var text_separators = '[><\uff5c]';
+
 	  // All possible word characters (everything without punctuation, spaces & controls)
 	  // Defined via punctuation & spaces to save space
 	  // Should be something like \p{\L\N\S\M} (\w but without `_`)
-	  re.src_pseudo_letter       = '(?:(?!>|<|' + re.src_ZPCc + ')' + re.src_Any + ')';
+	  re.src_pseudo_letter       = '(?:(?!' + text_separators + '|' + re.src_ZPCc + ')' + re.src_Any + ')';
 	  // The same as abothe but without [0-9]
 	  // var src_pseudo_letter_non_d = '(?:(?![0-9]|' + src_ZPCc + ')' + src_Any + ')';
 
@@ -5869,14 +5878,14 @@ module.exports =
 
 	  re.src_host_terminator =
 
-	    '(?=$|>|<|' + re.src_ZPCc + ')(?!-|_|:\\d|\\.-|\\.(?!$|' + re.src_ZPCc + '))';
+	    '(?=$|' + text_separators + '|' + re.src_ZPCc + ')(?!-|_|:\\d|\\.-|\\.(?!$|' + re.src_ZPCc + '))';
 
 	  re.src_path =
 
 	    '(?:' +
 	      '[/?#]' +
 	        '(?:' +
-	          '(?!' + re.src_ZCc + '|[()[\\]{}.,"\'?!\\-<>]).|' +
+	          '(?!' + re.src_ZCc + '|' + text_separators + '|[()[\\]{}.,"\'?!\\-]).|' +
 	          '\\[(?:(?!' + re.src_ZCc + '|\\]).)*\\]|' +
 	          '\\((?:(?!' + re.src_ZCc + '|[)]).)*\\)|' +
 	          '\\{(?:(?!' + re.src_ZCc + '|[}]).)*\\}|' +
@@ -5986,19 +5995,19 @@ module.exports =
 
 	  re.tpl_email_fuzzy =
 
-	      '(^|<|>|\\(|' + re.src_ZCc + ')(' + re.src_email_name + '@' + re.tpl_host_fuzzy_strict + ')';
+	      '(^|' + text_separators + '|\\(|' + re.src_ZCc + ')(' + re.src_email_name + '@' + re.tpl_host_fuzzy_strict + ')';
 
 	  re.tpl_link_fuzzy =
 	      // Fuzzy link can't be prepended with .:/\- and non punctuation.
 	      // but can start with > (markdown blockquote)
-	      '(^|(?![.:/\\-_@])(?:[$+<=>^`|]|' + re.src_ZPCc + '))' +
-	      '((?![$+<=>^`|])' + re.tpl_host_port_fuzzy_strict + re.src_path + ')';
+	      '(^|(?![.:/\\-_@])(?:[$+<=>^`|\uff5c]|' + re.src_ZPCc + '))' +
+	      '((?![$+<=>^`|\uff5c])' + re.tpl_host_port_fuzzy_strict + re.src_path + ')';
 
 	  re.tpl_link_no_ip_fuzzy =
 	      // Fuzzy link can't be prepended with .:/\- and non punctuation.
 	      // but can start with > (markdown blockquote)
-	      '(^|(?![.:/\\-_@])(?:[$+<=>^`|]|' + re.src_ZPCc + '))' +
-	      '((?![$+<=>^`|])' + re.tpl_host_port_no_ip_fuzzy_strict + re.src_path + ')';
+	      '(^|(?![.:/\\-_@])(?:[$+<=>^`|\uff5c]|' + re.src_ZPCc + '))' +
+	      '((?![$+<=>^`|\uff5c])' + re.tpl_host_port_no_ip_fuzzy_strict + re.src_path + ')';
 
 	  return re;
 	};
@@ -6006,30 +6015,6 @@ module.exports =
 
 /***/ },
 /* 117 */
-/***/ function(module, exports) {
-
-	module.exports=/[\0-\x1F\x7F-\x9F]/
-
-/***/ },
-/* 118 */
-/***/ function(module, exports) {
-
-	module.exports=/[!-#%-\*,-/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E44\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDF3C-\uDF3E]|\uD807[\uDC41-\uDC45\uDC70\uDC71]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F]/
-
-/***/ },
-/* 119 */
-/***/ function(module, exports) {
-
-	module.exports=/[ \xA0\u1680\u2000-\u200A\u202F\u205F\u3000]/
-
-/***/ },
-/* 120 */
-/***/ function(module, exports) {
-
-	module.exports=/[\0-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/
-
-/***/ },
-/* 121 */
 /***/ function(module, exports) {
 
 	/**
@@ -6179,6 +6164,30 @@ module.exports =
 	};
 
 	module.exports = CSSProperty;
+
+/***/ },
+/* 118 */
+/***/ function(module, exports) {
+
+	module.exports=/[\0-\x1F\x7F-\x9F]/
+
+/***/ },
+/* 119 */
+/***/ function(module, exports) {
+
+	module.exports=/[!-#%-\*,-/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E44\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDF3C-\uDF3E]|\uD807[\uDC41-\uDC45\uDC70\uDC71]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F]/
+
+/***/ },
+/* 120 */
+/***/ function(module, exports) {
+
+	module.exports=/[ \xA0\u1680\u2000-\u200A\u202F\u205F\u3000]/
+
+/***/ },
+/* 121 */
+/***/ function(module, exports) {
+
+	module.exports=/[\0-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/
 
 /***/ }
 /******/ ]);

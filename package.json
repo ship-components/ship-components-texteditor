@@ -1,13 +1,14 @@
 {
   "name": "ship-components-texteditor",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
     "start": "grunt server",
     "build": "grunt build",
-    "lint": "eslint src/",
-    "test": "npm run lint"
+    "lint": "./node_modules/eslint/bin/eslint.js src/*.js",
+    "test": "grunt lint && ./node_modules/jest-cli/bin/jest.js --coverage",
+    "coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js -v"
   },
   "repository": {
     "type": "git",
@@ -45,6 +46,7 @@
     "autoprefixer": "^6.5.4",
     "babel-core": "^6.21.0",
     "babel-eslint": "^7.1.1",
+    "babel-jest": "^19.0.0",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-es2015-classes": "^6.18.0",
     "babel-plugin-transform-runtime": "^6.15.0",
@@ -58,10 +60,16 @@
     "eslint-loader": "^1.6.1",
     "eslint-plugin-react": "^6.8.0",
     "extract-text-webpack-plugin": "^1.0.1",
+    "figlet": "^1.2.0",
     "file-loader": "^0.9.0",
     "grunt": "^0.4.5",
+    "grunt-cli": "^1.2.0",
+    "grunt-eslint": "^19.0.0",
     "grunt-webpack": "^1.0.18",
     "immutable": "^3.8.1",
+    "jest": "^19.0.2",
+    "jest-cli": "^19.0.2",
+    "jest-css-modules": "^1.1.0",
     "package-banner": "^0.1.1",
     "postcss-calc": "^5.3.1",
     "postcss-color-function": "^2.0.1",
@@ -70,9 +78,32 @@
     "postcss-nested": "^1.0.0",
     "postcss-simple-vars": "^3.0.0",
     "react": ">=15.0.0",
+    "react-addons-test-utils": "^15.4.2",
     "react-dom": ">=15.0.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(css)$": "<rootDir>/node_modules/jest-css-modules"
+    },
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/classnames",
+      "<rootDir>/node_modules/react",
+      "<rootDir>/node_modules/fbjs",
+      "<rootDir>/node_modules/react-dom",
+      "<rootDir>/node_modules/react-addons-test-utils"
+    ]
+  },
+  "babelJest": {
+    "include": [
+      "src/**/*.@(js|jsx|es6)",
+      "node_modules/ship-components-highlight-click/src/**/*.@(js|jsx|es6)",
+      "node_modules/ship-components-outsideclick/src/**/*.@(js|jsx|es6)"
+    ]
   }
 }

@@ -5,7 +5,7 @@
  *  \___ \|   Y  \  |  |_> > /_____/ \  \__(  <_> )  Y Y  \  |_> >  <_> )   |  \  ___/|   |  \  |  \___ \  /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
  * /____  >___|  /__|   __/           \___  >____/|__|_|  /   __/ \____/|___|  /\___  >___|  /__| /____  >          |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *      \/     \/   |__|                  \/            \/|__|               \/     \/     \/          \/                     \/      \/           \/     \/                        
- * ship-components-texteditor 0.2.4
+ * ship-components-texteditor 0.3.1
  * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/ship-components/ship-components-texteditor
@@ -1967,6 +1967,7 @@ module.exports =
 	  "af",
 	  "afamilycompany",
 	  "afl",
+	  "africa",
 	  "ag",
 	  "agakhan",
 	  "agency",
@@ -3388,6 +3389,7 @@ module.exports =
 	  "العليان", // xn--mgba7c0bbn0a
 	  "امارات", // xn--mgbaam7a8h
 	  "بازار", // xn--mgbab2bd
+	  "پاکستان", // xn--mgbai9azgqp6j
 	  "الاردن", // xn--mgbayh7gpa
 	  "موبايلي", // xn--mgbb9fbpob
 	  "بھارت", // xn--mgbbh1a71e

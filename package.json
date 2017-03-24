@@ -58,6 +58,7 @@
     "coveralls": "^2.12.0",
     "css-loader": "^0.26.1",
     "eslint": "^3.18.0",
+    "eslint-config-ship-components": "^1.1.0",
     "eslint-loader": "^1.7.0",
     "eslint-plugin-react": "^6.10.3",
     "extract-text-webpack-plugin": "^1.0.1",

@@ -7,9 +7,9 @@
 import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, ContentState, convertFromHTML, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator } from 'draft-js';
+import { Editor, EditorState, ContentState, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator, Modifier } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-
+import {convertFromHTML} from 'draft-convert';
 import StyleButton from './StyleButton';
 import linkStrategy from './link/linkStrategy';
 import Link from './link/Link';
@@ -109,7 +109,7 @@ export default class TextEditor extends Component {
     } else if (props.type === 'json') {
       return convertFromRaw(props.value);
     } else if (props.type === 'html') {
-      return ContentState.createFromBlockArray(convertFromHTML(props.value));
+      return convertFromHTML(props.value);
     } else {
       return props.value;
     }
@@ -149,11 +149,26 @@ export default class TextEditor extends Component {
    * Keyboard shortcuts
    */
   handleKeyCommand(command) {
-    const newEditorStatue = RichUtils.handleKeyCommand(this.state.editorState, command);
-    if (newEditorStatue) {
+    let content;
+    let editor;
+    let {editorState} = this.state;
+
+    const newEditorStatue = RichUtils.handleKeyCommand(editorState, command);
+
+    // Split the selected block into two blocks on 'Enter' command.
+    // @see https://draftjs.org/docs/api-reference-modifier.html#splitblock
+    if (command === 'split-block') {
+      content = Modifier
+        .splitBlock(editorState.getCurrentContent(), editorState.getSelection());
+      editor = EditorState.push(editorState, content, 'split-block');
+
+      this.handleEditorChange(editor);
+      return 'handled';
+    } else if (newEditorStatue) {
       this.handleEditorChange(newEditorStatue);
       return 'handled';
     }
+
     return 'not-handled';
   }
 

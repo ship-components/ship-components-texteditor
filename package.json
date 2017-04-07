@@ -57,6 +57,7 @@
     "classnames": "^2.2.5",
     "coveralls": "^2.12.0",
     "css-loader": "^0.26.1",
+    "draft-convert": "^1.4.3",
     "eslint": "^3.18.0",
     "eslint-config-ship-components": "^1.1.0",
     "eslint-loader": "^1.7.0",

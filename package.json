@@ -36,8 +36,8 @@
     }
   ],
   "dependencies": {
+    "draft-convert": "^1.4.3",
     "draft-js": "^0.9.1",
-    "draft-js-export-html": "^0.5.2",
     "linkify-it": "^2.0.2",
     "ship-components-icon": "^0.1.0",
     "tlds": "^1.180.0"

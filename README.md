@@ -146,7 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
-* 0.3.1 - Updates babel presets to presets-latest
+* 0.3.1 - Fixes the bug where adding line breaks (<br>) was getting removed.
 * 0.3.0 - Adds Tests, Travis CI and coverage
 * 0.2.4 - Adds an option to pass in a prop to only show inline style buttons or no buttons.
 * 0.2.3 - Added an option to remove HTML tags from string when passing prop type='text'

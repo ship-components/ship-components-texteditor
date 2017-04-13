@@ -3,20 +3,19 @@
  * @author Isaac Suttell <isaac@isaacsuttell.com>
  * @see https://facebook.github.io/draft-js/docs/overview.html
  */
-
+// Modules
 import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import Immutable from 'immutable';
 import { Editor, EditorState, ContentState, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator, Modifier } from 'draft-js';
-import { stateToHTML } from 'draft-js-export-html';
-import {convertFromHTML} from 'draft-convert';
+import {convertFromHTML, convertToHTML} from 'draft-convert';
+
+// Components & Helpers
 import StyleButton from './StyleButton';
 import linkStrategy from './link/linkStrategy';
 import Link from './link/Link';
 import BlockTypes from './BlockTypes';
 import InlineStyles from './InlineStyles';
-import HtmlOptions from './HtmlOptions';
-
 import ChangeEvent from './ChangeEvent';
 
 // CSS Module
@@ -124,7 +123,7 @@ export default class TextEditor extends Component {
     if (this.props.type === 'json') {
       return convertToRaw(content);
     } else if (this.props.type === 'html') {
-      return stateToHTML(content, HtmlOptions);
+      return convertToHTML(content);
     } else if (this.props.type === 'text') {
       return this.convertHTMLToString(content);
     } else {
@@ -156,8 +155,9 @@ export default class TextEditor extends Component {
     const newEditorStatue = RichUtils.handleKeyCommand(editorState, command);
 
     // Split the selected block into two blocks on 'Enter' command.
+    // ONLY ON HTML TYPE
     // @see https://draftjs.org/docs/api-reference-modifier.html#splitblock
-    if (command === 'split-block') {
+    if (command === 'split-block' && this.props.type === 'html') {
       content = Modifier
         .splitBlock(editorState.getCurrentContent(), editorState.getSelection());
       editor = EditorState.push(editorState, content, 'split-block');

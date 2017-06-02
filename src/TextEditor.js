@@ -63,7 +63,8 @@ export default class TextEditor extends Component {
     this.state = {
       focus: false,
       editorState,
-      stickyControlsStyle: null
+      stickyControlsStyle: null,
+      isContainerTopHigherThanControlsTop: null
     };
 
     // Binding
@@ -199,7 +200,7 @@ export default class TextEditor extends Component {
 
 
   componentDidMount() {
-    
+
     // Optionally make controls stick to the top, instead of scrolling out of view
     if(this.props.stickyControls) {
       window.addEventListener('scroll', this.handleScrollEvent);
@@ -208,8 +209,10 @@ export default class TextEditor extends Component {
 
   /**
    * Get CSS styles to position the "controls" component such that the
-   * right edge of the controls component is aligned with the right
-   * edge of the "editor" component.
+   * it switches to fixed position at the top of the window (optionally
+   * accounting for a header offset). It maintains it's horizontal 
+   * position location. It has a high zIndex so that it appears over 
+   * the "editor" component.
    *
    * @param offsetTop
    * @returns {{position: string, top: *, right: number, zIndex: string}}
@@ -217,7 +220,7 @@ export default class TextEditor extends Component {
    */
   getStickyControlsStyles(offsetTop) {
 
-    let editorEl = ReactDOM.findDOMNode(this.refs.editor);
+    let editorEl = ReactDOM.findDOMNode(this.refs.controls);
     let currEl = editorEl;
     let offsetLeft = 0;
     // Search up the tree and add up offsets to find the offset of the left edge
@@ -226,43 +229,71 @@ export default class TextEditor extends Component {
       currEl = currEl.offsetParent;
     }
 
-    // Add the left offset to the width to find the offset of the right 
-    // edge, then subtract that from the width of the window to get the
-    // "right offset".
-    let offsetRight = window.innerWidth - (offsetLeft + editorEl.offsetWidth);
+    // TODO determine the left margin value using CSS or DOM
+    const margin = 4;
 
     return {
       position: "fixed",
       top: offsetTop,
-      right: offsetRight,
+      left: offsetLeft + margin,
       zIndex: "1000"
     };
   }
 
   /**
-   * Event handler for window scroll. Set style for stickyControls as needed. 
+   * Event handler for window scroll. Set style for stickyControls as needed.
    */
   handleScrollEvent() {
 
-    // Optionally offset from the top of the window to account for a header 
+    if(!this.state.focus) {
+      if (this.state.stickyControlsStyle !== null) {
+        this.setState({stickyControlsStyle: null});
+      }
+      return;
+    }
+
+    // Optionally offset from the top of the window to account for a header
     let headerOffset = this.props.stickyControls.headerOffset || 0;
 
-    // StyleButton--btn.height from StyleButton.css
-    const styleButtonHeight = 42; 
-    
-    // Detect whether the top of the text editor controls have scrolled above the top of the window
-    // (optionally taking a header into account). Unstick the controls if the entire text editor 
-    // is above the top of the window.
-    let parentEl = ReactDOM.findDOMNode(this);
-    if (parentEl.getBoundingClientRect().top < headerOffset + styleButtonHeight &&
-      parentEl.getBoundingClientRect().bottom > headerOffset)  {
-      this.setState({stickyControlsStyle: this.getStickyControlsStyles(styleButtonHeight)});
-    } else {
+    let containerEl = ReactDOM.findDOMNode(this);
+    let controlsEl = ReactDOM.findDOMNode(this.refs.controls);
+    let editorEl = ReactDOM.findDOMNode(this.refs.editor);
+
+    let containerElTop = containerEl.getBoundingClientRect().top;
+
+    let controlsElTop = controlsEl.getBoundingClientRect().top;
+    let controlsElHeight = controlsEl.getBoundingClientRect().height;
+
+    let editorElTop = editorEl.getBoundingClientRect().top;
+    let editorElBottom = editorEl.getBoundingClientRect().bottom;
+
+    // The top of the controls isn't necessarily inside the boundaries of the container,
+    // store it in state. Only set this once, when the controls are not sticky.
+    if(!this.state.isContainerTopHigherThanControlsTop && !this.state.stickyControlsStyle) {
+      this.setState({isContainerTopHigherThanControlsTop: containerElTop > controlsElTop});
+    }
+
+    // If controls top is above window top then make the controls sticky. Optionally account for header.
+    if((this.state.isContainerTopHigherThanControlsTop && (editorElTop - controlsElHeight < headerOffset || controlsElTop < headerOffset) ) &&
+      editorElBottom > headerOffset) {
+      if(!this.state.stickyControlsStyle){
+        this.setState({stickyControlsStyle: this.getStickyControlsStyles(headerOffset)});
+      }
+    }
+    // If container top is above window top then make the controls sticky. Optionally account for header.
+    else if((!this.state.isContainerTopHigherThanControlsTop && containerElTop < headerOffset) &&
+      editorElBottom > headerOffset) {
+      if(!this.state.stickyControlsStyle){
+        this.setState({stickyControlsStyle: this.getStickyControlsStyles(headerOffset)});
+      }
+    }
+    else if(this.state.stickyControlsStyle){
       this.setState({stickyControlsStyle: null});
     }
+
   }
-  
-  
+
+
   /**
    * Toggle an inline style
    */
@@ -324,7 +355,7 @@ export default class TextEditor extends Component {
         [css.focus] : this.state.focus
       })}>
         {this.props.editable && !noStyleButtons ?
-          <div className={css.controls} style={this.state.stickyControlsStyle}>
+          <div ref='controls' className={css.controls} style={this.state.stickyControlsStyle}>
             {InlineStyles
               // Allow user to select styles to show
               .filter(type => this.props.inlineStyles.has(type.style))

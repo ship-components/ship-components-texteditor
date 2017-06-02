@@ -5,6 +5,7 @@
  */
 
 import React, {Component, PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import Immutable from 'immutable';
 import { Editor, EditorState, ContentState, convertFromHTML, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator } from 'draft-js';
@@ -61,12 +62,14 @@ export default class TextEditor extends Component {
     // Set state the first time
     this.state = {
       focus: false,
-      editorState
+      editorState,
+      stickyControlsStyle: null
     };
 
     // Binding
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
+    this.handleScrollEvent = this.handleScrollEvent.bind(this);
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
@@ -79,8 +82,9 @@ export default class TextEditor extends Component {
    */
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.editable !== this.props.editable ||
-           nextState.focus !== this.state.focus ||
-           nextState.editorState !== this.state.editorState;
+      nextState.focus !== this.state.focus ||
+      nextState.editorState !== this.state.editorState ||
+      nextState.stickyControlsStyle !== this.state.stickyControlsStyle;
   }
 
   /**
@@ -193,6 +197,72 @@ export default class TextEditor extends Component {
     this.refs.editor.focus();
   }
 
+
+  componentDidMount() {
+    
+    // Optionally make controls stick to the top, instead of scrolling out of view
+    if(this.props.stickyControls) {
+      window.addEventListener('scroll', this.handleScrollEvent);
+    }
+  }
+
+  /**
+   * Get CSS styles to position the "controls" component such that the
+   * right edge of the controls component is aligned with the right
+   * edge of the "editor" component.
+   *
+   * @param offsetTop
+   * @returns {{position: string, top: *, right: number, zIndex: string}}
+   * @private
+   */
+  getStickyControlsStyles(offsetTop) {
+
+    let editorEl = ReactDOM.findDOMNode(this.refs.editor);
+    let currEl = editorEl;
+    let offsetLeft = 0;
+    // Search up the tree and add up offsets to find the offset of the left edge
+    while (currEl) {
+      offsetLeft += (currEl.offsetLeft + currEl.clientLeft);
+      currEl = currEl.offsetParent;
+    }
+
+    // Add the left offset to the width to find the offset of the right 
+    // edge, then subtract that from the width of the window to get the
+    // "right offset".
+    let offsetRight = window.innerWidth - (offsetLeft + editorEl.offsetWidth);
+
+    return {
+      position: "fixed",
+      top: offsetTop,
+      right: offsetRight,
+      zIndex: "1000"
+    };
+  }
+
+  /**
+   * Event handler for window scroll. Set style for stickyControls as needed. 
+   */
+  handleScrollEvent() {
+
+    // Optionally offset from the top of the window to account for a header 
+    let headerOffset = this.props.stickyControls.headerOffset || 0;
+
+    // StyleButton--btn.height from StyleButton.css
+    const styleButtonHeight = 42; 
+    
+    // Detect whether the top of the text editor controls have scrolled above the top of the window
+    // (optionally taking a header into account). Unstick the controls if the entire text editor 
+    // is above the top of the window.
+    let parentEl = ReactDOM.findDOMNode(this);
+    if (parentEl.getBoundingClientRect().top < headerOffset + styleButtonHeight &&
+      parentEl.getBoundingClientRect().bottom > headerOffset)  {
+      this.setState({stickyControlsStyle: this.getStickyControlsStyles(styleButtonHeight)});
+    } else {
+      this.setState({stickyControlsStyle: null});
+    }
+  }
+  
+  
   /**
    * Toggle an inline style
    */
@@ -254,7 +324,7 @@ export default class TextEditor extends Component {
         [css.focus] : this.state.focus
       })}>
         {this.props.editable && !noStyleButtons ?
-          <div className={css.controls}>
+          <div className={css.controls} style={this.state.stickyControlsStyle}>
             {InlineStyles
               // Allow user to select styles to show
               .filter(type => this.props.inlineStyles.has(type.style))

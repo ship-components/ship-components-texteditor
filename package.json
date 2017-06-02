@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -72,6 +72,7 @@
     "jest": "^19.0.2",
     "jest-cli": "^19.0.2",
     "jest-css-modules": "^1.1.0",
+    "json-loader": "^0.5.4",
     "package-banner": "^0.1.1",
     "postcss-calc": "^5.3.1",
     "postcss-color-function": "^2.0.1",

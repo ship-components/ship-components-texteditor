@@ -182,7 +182,7 @@ export default class TextEditor extends Component {
     this.setState({
       editorState,
       focus
-    },()=>{
+    }, () => {
       if (typeof this.props.onChange !== 'function') {
         return;
       }
@@ -273,34 +273,30 @@ export default class TextEditor extends Component {
             {InlineStyles
               // Allow user to select styles to show
               .filter(type => this.props.inlineStyles.has(type.style))
-              .map(type => {
-                return (
+              .map(type =>
+                <StyleButton
+                  className={this.props.buttonClass}
+                  key={type.style}
+                  editorState={editorState}
+                  // Determine if the style is active or not
+                  active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
+                  onMouseDown={this.handleInlineStyleClick.bind(this, type.style)}
+                  {...type}
+                />
+              )}
+              {!onlyInline ? BlockTypes
+                // Allow user to select styles to show
+                .filter(type => this.props.blockTypes.has(type.style))
+                .map(type =>
                   <StyleButton
                     className={this.props.buttonClass}
                     key={type.style}
                     editorState={editorState}
-                    // Determine if the style is active or not
-                    active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
-                    onMouseDown={this.handleInlineStyleClick.bind(this, type.style)}
+                    active={type.style === blockType}
+                    onMouseDown={this.handleBlockStyleClick.bind(this, type.style)}
                     {...type}
                   />
-                );
-              })}
-              {!onlyInline ? BlockTypes
-                // Allow user to select styles to show
-                .filter(type => this.props.blockTypes.has(type.style))
-                .map(type => {
-                  return (
-                    <StyleButton
-                      className={this.props.buttonClass}
-                      key={type.style}
-                      editorState={editorState}
-                      active={type.style === blockType}
-                      onMouseDown={this.handleBlockStyleClick.bind(this, type.style)}
-                      {...type}
-                    />
-                  );
-                }) : null}
+                ) : null}
           </div>
         : null}
         <div

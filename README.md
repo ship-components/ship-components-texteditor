@@ -146,6 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 0.3.3 - Adds the JSON loader to parse the json files (Bug fix).
 * 0.3.2 - Fixes the bug where adding line breaks (br tag) was getting removed.
 * 0.3.0 - Adds Tests, Travis CI and coverage
 * 0.2.4 - Adds an option to pass in a prop to only show inline style buttons or no buttons.

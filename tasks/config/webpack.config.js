@@ -54,6 +54,9 @@ module.exports = {
         include: /ship-components-.*\/src/,
         loader: 'babel'
       }, {
+        test: /\.json$/,
+        loader: 'json'
+      }, {
           // File loader
          test: /\.(png|svg|jpeg|jpg|ttf|eot|woff)/,
          loader: 'file?name=[path][name].[ext]'

@@ -5,7 +5,7 @@
  *  \___ \|   Y  \  |  |_> > /_____/ \  \__(  <_> )  Y Y  \  |_> >  <_> )   |  \  ___/|   |  \  |  \___ \  /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
  * /____  >___|  /__|   __/           \___  >____/|__|_|  /   __/ \____/|___|  /\___  >___|  /__| /____  >          |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *      \/     \/   |__|                  \/            \/|__|               \/     \/     \/          \/                     \/      \/           \/     \/                        
- * ship-components-texteditor 0.3.1
+ * ship-components-texteditor 0.3.2
  * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/ship-components/ship-components-texteditor
@@ -19,11 +19,11 @@
  *  \___ \|   Y  \  |  |_> > /_____/ \  \__(  <_> )  Y Y  \  |_> >  <_> )   |  \  ___/|   |  \  |  \___ \  /_____/  |  | \  ___/ >    <  |  | \  ___// /_/ | |  ||  | (  <_> )  | \/
  * /____  >___|  /__|   __/           \___  >____/|__|_|  /   __/ \____/|___|  /\___  >___|  /__| /____  >          |__|  \___  >__/\_ \ |__|  \___  >____ | |__||__|  \____/|__|   
  *      \/     \/   |__|                  \/            \/|__|               \/     \/     \/          \/                     \/      \/           \/     \/                        
- * ship-components-texteditor 0.3.1
+ * ship-components-texteditor 0.3.2
  * Description: Rich Text Editor for React
  * Author: Isaac Suttell <isaac@isaacsuttell.com>
  * Homepage: https://github.com/ship-components/ship-components-texteditor
  * Bugs: https://github.com/ship-components/ship-components-texteditor/issues
  * License: MIT
  */
-.StyleButton--btn{outline:none;display:block;background-color:transparent;margin:0;width:42px;height:42px;line-height:42px;font-size:16px;box-sizing:border-box;text-align:center;-webkit-transition:all .3s ease;transition:all .3s ease;cursor:pointer}.StyleButton--btn:hover{background-color:rgba(0,0,0,.11)}.StyleButton--btn:first-child{margin-left:0}.StyleButton--btn:last-child{margin-right:0}.StyleButton--btn.StyleButton--icon{font-size:20px}.StyleButton--btn.StyleButton--icon:before{line-height:42px}.StyleButton--btn.StyleButton--active{box-shadow:inset 0 1px 3px rgba(0,0,0,.26);background-color:rgba(0,0,0,.11)}.StyleButton--btn.StyleButton--active:hover{background-color:rgba(0,0,0,.26)}.TextEditor--container{position:relative}.TextEditor--editor{padding:8px}.TextEditor--controls{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;border-bottom:1px solid rgba(0,0,0,.11);margin:4px -4px}.public-DraftEditorPlaceholder-inner{position:absolute;opacity:.56;pointer-events:none}
+.StyleButton--btn{outline:none;display:block;background-color:transparent;margin:0;width:42px;height:42px;line-height:42px;font-size:16px;box-sizing:border-box;text-align:center;transition:all .3s ease;cursor:pointer}.StyleButton--btn:hover{background-color:rgba(0,0,0,.11)}.StyleButton--btn:first-child{margin-left:0}.StyleButton--btn:last-child{margin-right:0}.StyleButton--btn.StyleButton--icon{font-size:20px}.StyleButton--btn.StyleButton--icon:before{line-height:42px}.StyleButton--btn.StyleButton--active{box-shadow:inset 0 1px 3px rgba(0,0,0,.26);background-color:rgba(0,0,0,.11)}.StyleButton--btn.StyleButton--active:hover{background-color:rgba(0,0,0,.26)}.TextEditor--container{position:relative}.TextEditor--editor{padding:8px}.TextEditor--controls{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;border-bottom:1px solid rgba(0,0,0,.11);margin:4px -4px}.public-DraftEditorPlaceholder-inner{position:absolute;opacity:.56;pointer-events:none}

@@ -1,11 +1,11 @@
-jest.unmock('../TextEditor');
-
 // Don't need to test these and they currently throw errors
 jest.setMock('ship-components-icon', 'div');
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
+import TestUtils from 'react-dom/test-utils';
 import Immutable from 'immutable';
+import {mount} from 'enzyme';
+import { EditorState } from 'draft-js';
 
 describe('TextEditor', () => {
   let props = {
@@ -29,6 +29,20 @@ describe('TextEditor', () => {
 
     expect(() => TestUtils.renderIntoDocument(element))
        .not.toThrow();
+  });
+
+  xit('fires a change handler', () => {
+    const handleChange = jest.fn();
+    const wrapper = mount(
+      <TextEditor
+        value=''
+        onChange={handleChange}
+      />
+    );
+
+    expect(handleChange).not.toHaveBeenCalled();
+    wrapper.getElement().handleEditorChange(EditorState.createWithContent('test content'));
+    expect(handleChange).toHaveBeenCalled();
   });
 
   it('should support custom css classes', () => {

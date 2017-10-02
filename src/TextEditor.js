@@ -12,11 +12,13 @@ import {convertFromHTML, convertToHTML} from 'draft-convert';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
-import linkStrategy from './link/linkStrategy';
-import Link from './link/Link';
-import BlockTypes from './BlockTypes';
-import InlineStyles from './InlineStyles';
-import ChangeEvent from './ChangeEvent';
+import Link from './Link';
+
+// lib
+import linkStrategy from './lib/linkStrategy';
+import BlockTypes from './lib/BlockTypes';
+import InlineStyles from './lib/InlineStyles';
+import ChangeEvent from './lib/ChangeEvent';
 
 // CSS Module
 import css from './TextEditor.css';

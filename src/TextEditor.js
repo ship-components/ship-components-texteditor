@@ -7,8 +7,7 @@
 import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, ContentState, RichUtils, convertToRaw, convertFromRaw, CompositeDecorator, Modifier } from 'draft-js';
-import {convertFromHTML, convertToHTML} from 'draft-convert';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier } from 'draft-js';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
@@ -19,6 +18,7 @@ import linkStrategy from './lib/linkStrategy';
 import BlockTypes from './lib/BlockTypes';
 import InlineStyles from './lib/InlineStyles';
 import ChangeEvent from './lib/ChangeEvent';
+import {convertContentFrom, convertContentTo} from './lib/convert';
 
 // CSS Module
 import css from './TextEditor.css';
@@ -48,7 +48,7 @@ export default class TextEditor extends Component {
     super(props);
 
     // Convert incoming to somethign draft-js friendly
-    const content = this.convertContentFrom(props);
+    const content = convertContentFrom(props.value, props.type);
 
     // Configure custom decorators
     let decorators = setupDecorators(props);
@@ -71,7 +71,6 @@ export default class TextEditor extends Component {
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
-    this.convertHTMLToString = this.convertHTMLToString.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -92,58 +91,13 @@ export default class TextEditor extends Component {
    */
   forceUpdateState(props = this.props) {
     // Convert incoming to somethign draft-js friendly
-    const content = this.convertContentFrom(props);
+    const content = convertContentFrom(props.value, props.type);
 
     // Generate new date
     const updatedEditorState = EditorState.push(this.state.editorState, content);
 
     // Update
     this.handleEditorChange(updatedEditorState);
-  }
-
-  /**
-   * Get the content depending on the type of data we're passing around
-   */
-  convertContentFrom(props = this.props) {
-    if (!props.value) {
-      return ContentState.createFromText('');
-    } else if (props.type === 'json') {
-      return convertFromRaw(props.value);
-    } else if (props.type === 'html') {
-      return convertFromHTML(props.value);
-    } else {
-      return props.value;
-    }
-  }
-
-  /**
-   * Convert the content depending on what the parent wants
-   */
-  convertContentTo() {
-    const content = this.state.editorState.getCurrentContent();
-
-    if (this.props.type === 'json') {
-      return convertToRaw(content);
-    } else if (this.props.type === 'html') {
-      return convertToHTML(content);
-    } else if (this.props.type === 'text') {
-      return this.convertHTMLToString(content);
-    } else {
-      return content;
-    }
-  }
-
-  /**
-   * Removes the HTML tags from Strings
-   *
-   * @param     {String}    str
-   * @return    {String}    str
-   */
-  convertHTMLToString(str) {
-    if (typeof str !== 'string') {
-      return str;
-    }
-    return str.replace(/<\/?[^>]+(>|$)/g, '');
   }
 
   /**
@@ -191,7 +145,7 @@ export default class TextEditor extends Component {
 
       // Convert from draft-fs format to html so its seamless with the rest of
       // the application. Should remove this eventually
-      const value = this.convertContentTo();
+      const value = convertContentTo(this.state.editorState.getCurrentContent(), this.props.type);
 
       let event = new ChangeEvent(value, {
         ref: this
@@ -206,7 +160,7 @@ export default class TextEditor extends Component {
    * Refocus the cursor on the editor
    * @public
    */
-  focus(){
+  focus() {
     this.refs.editor.focus();
   }
 

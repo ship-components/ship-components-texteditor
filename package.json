@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -33,6 +33,10 @@
     {
       "name": "Sepand Assadi",
       "email": "sepand.assadi@sony.com"
+    },
+    {
+      "name": "Chris Orescan",
+      "email": "chris.orescan@sony.com"
     }
   ],
   "dependencies": {

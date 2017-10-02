@@ -31,17 +31,18 @@ describe('TextEditor', () => {
        .not.toThrow();
   });
 
-  xit('fires a change handler', () => {
+  it('fires a change handler', () => {
     const handleChange = jest.fn();
     const wrapper = mount(
       <TextEditor
-        value=''
+        value='test content'
         onChange={handleChange}
       />
     );
 
     expect(handleChange).not.toHaveBeenCalled();
-    wrapper.getElement().handleEditorChange(EditorState.createWithContent('test content'));
+    const reactEl = wrapper.instance();
+    reactEl.handleEditorChange(wrapper.state('editorState'));
     expect(handleChange).toHaveBeenCalled();
   });
 

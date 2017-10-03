@@ -11,10 +11,10 @@ linkify.tlds(tlds);
 
 export default function Link(props) {
   const {
-    decoratedText = '',
-    target = '_blank',
-    title = '',
-    alt = '',
+    decoratedText,
+    target,
+    title,
+    alt,
     className,
     children
   } = props;
@@ -37,3 +37,11 @@ export default function Link(props) {
     <a {...anchorProps}>{children}</a>
   );
 }
+
+Link.defaultProps = {
+  decoratedText: '',
+  target: '_blank',
+  title: '',
+  alt: '',
+  className: ''
+};

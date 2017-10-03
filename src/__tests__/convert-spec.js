@@ -5,13 +5,14 @@ describe('convertContentTo', () => {
 
 	let draftJsContent;
 	beforeEach(() => {
-		draftJsContent = DraftJS.ContentState.createFromText('<div>some <a href="#">content</a></div>');
+		draftJsContent = DraftJS.ContentState.createFromText('some content');
 	});
 
 	it('converts DraftJS content to json', () => {
 		expect(draftJsContent).toBeInstanceOf(ContentState);
 		let content = convertContentTo(draftJsContent, 'json');
 		expect(content).toBeInstanceOf(Object);
+		expect(content.blocks).toBeDefined();
 	});
 
 	it('converts DraftJS content to html string', () => {
@@ -31,7 +32,7 @@ describe('convertContentTo', () => {
 describe('convertContentFrom', () => {
 	let draftJsContent;
 	beforeEach(() => {
-		draftJsContent = DraftJS.ContentState.createFromText('<div>some <a href="#">content</a></div>');
+		draftJsContent = DraftJS.ContentState.createFromText('some content');
 	});
 
 	it('converts content from json to DraftJS ContentState', () => {

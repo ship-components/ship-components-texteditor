@@ -1,10 +1,12 @@
-jest.unmock('../ChangeEvent');
+/**
+ * Test lib/ChangeEvent object
+ */
 
 describe('ChangeEvent', () => {
   let ChangeEvent;
 
   beforeEach(() => {
-    ChangeEvent = require('../ChangeEvent').default;
+    ChangeEvent = require('../lib/ChangeEvent').default;
   });
 
   // Render without error

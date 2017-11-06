@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Link should match snapshot 1`] = `
+<Link
+  alt="100 years forever Rick and Morty"
+  className="real-classy-stuff"
+  decoratedText="https://twitter.com/RickandMorty"
+  target="_blank"
+  title="Interdimensional Twitter"
+>
+  <a
+    alt="100 years forever Rick and Morty"
+    className="real-classy-stuff"
+    href="https://twitter.com/RickandMorty"
+    target="_blank"
+    title="Interdimensional Twitter"
+  >
+    Wubba lubba dub dub!
+  </a>
+</Link>
+`;

@@ -146,6 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 1.0.0 - Update to use prop-types (for React 16 compatibility)
 * 0.4.0 - Babel preset update
 * 0.3.4 - Added more unit tests
 * 0.3.3 - Adds the JSON loader to parse the json files (Bug fix).

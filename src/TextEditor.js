@@ -4,7 +4,8 @@
  * @see https://facebook.github.io/draft-js/docs/overview.html
  */
 // Modules
-import React, {Component, PropTypes} from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Immutable from 'immutable';
 import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier } from 'draft-js';

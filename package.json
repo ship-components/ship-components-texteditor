@@ -88,9 +88,9 @@
     "postcss-nested": "^1.0.0",
     "postcss-simple-vars": "^3.0.0",
     "prop-types": "^15.6.1",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-test-renderer": "^16.6.3",
+    "react": ">=16.0.0 <17.0.0",
+    "react-dom": ">=16.0.0 <17.0.0",
+    "react-test-renderer": ">=16.0.0 <17.0.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"

@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -62,7 +62,7 @@
     "coveralls": "^2.12.0",
     "css-loader": "^0.26.1",
     "enzyme": "^3.0.0",
-    "enzyme-adapter-react-15": "^1.0.0",
+    "enzyme-adapter-react-16": "^1.7.0",
     "enzyme-to-json": "^3.0.1",
     "eslint": "^3.18.0",
     "eslint-config-ship-components": "^1.1.0",
@@ -88,9 +88,9 @@
     "postcss-nested": "^1.0.0",
     "postcss-simple-vars": "^3.0.0",
     "prop-types": "^15.6.1",
-    "react": "^15.6.2",
-    "react-dom": "^15.4.2",
-    "react-test-renderer": "^15.6.2",
+    "react": ">=16.0.0 <17.0.0",
+    "react-dom": ">=16.0.0 <17.0.0",
+    "react-test-renderer": ">=16.0.0 <17.0.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"

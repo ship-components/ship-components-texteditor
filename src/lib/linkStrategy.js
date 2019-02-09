@@ -10,15 +10,25 @@ linkify.tlds(tlds);
  * Link component is used
  * @param    {Immutable}      contentBlock    [description]
  * @param    {Function}       callback        [description]
+ * @param    {Immutable}      contentState    [description]
  */
-export default function(contentBlock, callback) {
-  // Find
+export default function(contentBlock, callback, contentState) {
+  // Find Text
   const links = linkify.match(contentBlock.get('text'));
 
-  // Apply
+  // Apply Text
   if (typeof links !== 'undefined' && links !== null) {
     for (let i = 0; i < links.length; i += 1) {
       callback(links[i].index, links[i].lastIndex);
     }
   }
+
+  // Find & Apply Entities
+  contentBlock.findEntityRanges(character => {
+		const entityKey = character.getEntity();
+		return (
+			entityKey !== null &&
+			contentState.getEntity(entityKey).getType() === "LINK"
+		);
+	}, callback);
 }

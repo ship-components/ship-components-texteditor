@@ -200,6 +200,35 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * Toggle a link element
+   */
+  handleLinkClick(event) {
+    if (!this.props.editable) {
+      return;
+    } else if (event) {
+      event.preventDefault();
+    }
+
+    const editorState = this.state.editorState;
+    const selection = editorState.getSelection();
+    const content = editorState.getCurrentContent();
+
+    const defaultUrl = 'http://';
+    const link = window.prompt('Set Link URL', defaultUrl);
+    if (!link || !link.trim() || link.trim() === defaultUrl) {
+      this.handleEditorChange(RichUtils.toggleLink(editorState, selection, null));
+      return;
+    }
+
+    const contentWithEntity = content.createEntity('LINK', 'MUTABLE', {
+      href: link
+    });
+    const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+    const entityKey = contentWithEntity.getLastCreatedEntityKey();
+    this.handleEditorChange(RichUtils.toggleLink(newEditorState, selection, entityKey));
+  }
+
+  /**
    * Make it all happen
    * @return    {React}
    */
@@ -214,7 +243,7 @@ export default class TextEditor extends Component {
     // buttons
     const currentInlineStyle = editorState.getCurrentInlineStyle();
 
-    // Determing the current blockt ype
+    // Determing the current block type
     const blockType = editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
     const {noStyleButtons, onlyInline} = this.props;
 
@@ -237,23 +266,27 @@ export default class TextEditor extends Component {
                   editorState={editorState}
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
-                  onMouseDown={this.handleInlineStyleClick.bind(this, type.style)}
+                  onMouseDown={
+                    type.style === 'LINK'
+                      ? this.handleLinkClick.bind(this)
+                      : this.handleInlineStyleClick.bind(this, type.style)
+                  }
                   {...type}
                 />
               )}
-              {!onlyInline ? BlockTypes
-                // Allow user to select styles to show
-                .filter(type => this.props.blockTypes.has(type.style))
-                .map(type =>
-                  <StyleButton
-                    className={this.props.buttonClass}
-                    key={type.style}
-                    editorState={editorState}
-                    active={type.style === blockType}
-                    onMouseDown={this.handleBlockStyleClick.bind(this, type.style)}
-                    {...type}
-                  />
-                ) : null}
+            {!onlyInline ? BlockTypes
+              // Allow user to select styles to show
+              .filter(type => this.props.blockTypes.has(type.style))
+              .map(type =>
+                <StyleButton
+                  className={this.props.buttonClass}
+                  key={type.style}
+                  editorState={editorState}
+                  active={type.style === blockType}
+                  onMouseDown={this.handleBlockStyleClick.bind(this, type.style)}
+                  {...type}
+                />
+              ) : null}
           </div>
         : null}
         <div
@@ -306,7 +339,7 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
   noStyleButtons: false,
   onlyInline: false,
-  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
+  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'LINK', 'CODE']),
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
   editable: true,
   type: 'html',

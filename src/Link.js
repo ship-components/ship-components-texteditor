@@ -10,21 +10,21 @@ const linkify = linkifyIt();
 linkify.tlds(tlds);
 
 export default function Link(props) {
+  // get props
   const {
+    contentState,
     decoratedText,
+    entityKey,
+
+    href,
     target,
+    className,
     title,
     alt,
-    className,
     children
   } = props;
 
-  // parse
-  const links = linkify.match(decoratedText);
-
-  // extract
-  const href = links && links[0] ? links[0].url : '';
-
+  // get anchor props
   const anchorProps = {
     href,
     target,
@@ -33,15 +33,25 @@ export default function Link(props) {
     alt
   };
 
+  // generate href prop
+  if (entityKey) {
+    // extract entity
+    anchorProps.href = contentState.getEntity(entityKey).getData().href;
+  } else {
+    // parse text
+    const links = linkify.match(decoratedText);
+    // extract text
+    anchorProps.href = links && links[0] ? links[0].url : '';
+  }
+
   return (
     <a {...anchorProps}>{children}</a>
   );
 }
 
 Link.defaultProps = {
-  decoratedText: '',
   target: '_blank',
+  className: '',
   title: '',
-  alt: '',
-  className: ''
+  alt: ''
 };

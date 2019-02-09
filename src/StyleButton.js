@@ -19,7 +19,7 @@ export default class StyleButton extends Component {
     return (
       <div
         className={classNames(this.props.className, 'text-editor---btn', css.btn, this.props.iconClass, {
-          [css.icon] : typeof this.props.iconClass === 'string',
+          [css.icon]: typeof this.props.iconClass === 'string',
           'text-editor--btn-active': this.props.active,
           [css.active]: this.props.active
         })}

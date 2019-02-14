@@ -23,7 +23,9 @@ export default class StyleButton extends Component {
           'text-editor--btn-active': this.props.active,
           [css.active]: this.props.active
         })}
+        onClick={this.props.onClick}
         onMouseDown={this.props.onMouseDown}
+        onMouseUp={this.props.onMouseUp}
         title={this.props.title}
       >
         {typeof this.props.iconClass !== 'string' ?
@@ -40,9 +42,11 @@ export default class StyleButton extends Component {
  */
 StyleButton.propTypes = {
   iconClass: PropTypes.string,
-  style: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   active: PropTypes.bool.isRequired,
   className: PropTypes.string,
-  title: PropTypes.string
+  title: PropTypes.string,
+  onClick: PropTypes.func,
+  onMouseUp: PropTypes.func,
+  onMouseDown: PropTypes.func
 };

@@ -29,11 +29,6 @@ const INLINE_STYLES = [
     label: 'Code',
     style: 'CODE',
     iconClass: Icon.code
-  },
-  {
-    label: 'Link',
-    style: 'LINK',
-    iconClass: Icon.insert_link
   }
 ];
 

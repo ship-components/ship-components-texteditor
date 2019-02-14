@@ -261,7 +261,6 @@ export default class TextEditor extends Component {
         isBackwards: false,
         hasFocus: false
       });
-      console.log(selectionState);
     }
 
     let defaultUrl = 'http://';

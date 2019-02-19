@@ -39,13 +39,6 @@
       "email": "chris.orescan@sony.com"
     }
   ],
-  "dependencies": {
-    "draft-convert": "^2.0.1",
-    "draft-js": "^0.10.5",
-    "linkify-it": "^2.0.2",
-    "ship-components-icon": "^0.1.0",
-    "tlds": "^1.180.0"
-  },
   "devDependencies": {
     "autoprefixer": "^6.5.4",
     "babel-core": "^6.21.0",
@@ -58,9 +51,12 @@
     "babel-preset-react": "^6.16.0",
     "babel-register": "^6.18.0",
     "babel-runtime": "^6.20.0",
+    "bluebird": "^3.5.3",
     "classnames": "^2.2.5",
     "coveralls": "^2.12.0",
     "css-loader": "^0.26.1",
+    "draft-convert": "^2.0.1",
+    "draft-js": "^0.10.5",
     "enzyme": "^3.0.0",
     "enzyme-adapter-react-16": "^1.7.0",
     "enzyme-to-json": "^3.0.1",
@@ -80,6 +76,7 @@
     "jest-cli": "^19.0.2",
     "jest-css-modules": "^1.1.0",
     "json-loader": "^0.5.4",
+    "linkify-it": "^2.0.2",
     "package-banner": "^0.1.1",
     "postcss-calc": "^6.0.2",
     "postcss-color-function": "^2.0.1",
@@ -91,7 +88,11 @@
     "react": ">=16.0.0 <17.0.0",
     "react-dom": ">=16.0.0 <17.0.0",
     "react-test-renderer": ">=16.0.0 <17.0.0",
+    "ship-components-dialog": "^1.0.0",
+    "ship-components-icon": "^0.1.0",
+    "ship-components-textinput": "^0.3.9",
     "style-loader": "^0.13.1",
+    "tlds": "^1.180.0",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
   },

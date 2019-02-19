@@ -16,12 +16,6 @@ const LINK_TYPES = [
     action: 'EDIT',
     whenLink: true,
     iconClass: Icon.insert_link
-  },
-  {
-    label: 'Remove Link',
-    action: 'DELETE',
-    whenLink: true,
-    iconClass: Icon.remove_circle_outline
   }
 ];
 

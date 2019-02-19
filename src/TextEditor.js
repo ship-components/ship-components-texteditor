@@ -13,14 +13,16 @@ import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, Selection
 // Components & Helpers
 import StyleButton from './StyleButton';
 import Link from './Link';
+import { ModalActions, Modals } from 'ship-components-dialog';
 
-// lib
+// Lib
 import linkStrategy from './lib/linkStrategy';
 import LinkTypes from './lib/LinkTypes';
+import LinkModal from './lib/LinkModal';
 import BlockTypes from './lib/BlockTypes';
 import InlineStyles from './lib/InlineStyles';
 import ChangeEvent from './lib/ChangeEvent';
-import {convertContentFrom, convertContentTo} from './lib/convert';
+import { convertContentFrom, convertContentTo } from './lib/convert';
 
 // CSS Module
 import css from './TextEditor.css';
@@ -64,7 +66,8 @@ export default class TextEditor extends Component {
     // Set state the first time
     this.state = {
       focus: false,
-      editorState
+      editorState,
+      linkState: null
     };
 
     // Binding
@@ -73,6 +76,8 @@ export default class TextEditor extends Component {
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
+    this.handleLinkClick = this.handleLinkClick.bind(this);
+    this.handleLinkChange  = this.handleLinkChange.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -252,7 +257,7 @@ export default class TextEditor extends Component {
     let selectionState = editorState.getSelection();
     
     // If selection is collapsed, find full link
-    if (selectionState.isCollapsed()) {
+    if (currentLink && selectionState.isCollapsed()) {
       selectionState = new SelectionState({
         anchorKey: currentLink.block.getKey(),
         anchorOffset: currentLink.start,
@@ -263,7 +268,8 @@ export default class TextEditor extends Component {
       });
     }
 
-    let defaultUrl = 'http://';
+    let title = 'Add Link';
+    let defaultUrl = '';
 
     switch (linkAction) {
       case 'DELETE':
@@ -276,28 +282,45 @@ export default class TextEditor extends Component {
         // Find current link
         if (currentLink !== null) {
           // Set default to current link href
+          title = 'Edit Link';
           defaultUrl = currentLink.entity.getData().href;
         }
 
       case 'ADD':
         // Ask for link URL
-        const newHref = window.prompt('Set Link URL', defaultUrl);
-        if (newHref === null) {
-          // User cancelled
-          return;
-        } else if (newHref.trim() === '' || newHref.trim() === defaultUrl) {
-          // Used entered empty string or kept default - remove link
-          this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
-          return;
-        }
-        // Set link in content
-        const contentWithEntity = content.createEntity('LINK', 'MUTABLE', {
-          href: newHref
+        ModalActions.open(
+          <LinkModal
+            title={title}
+            href={defaultUrl}
+            onConfirm={this.handleLinkChange}
+          />
+        ).then(() => {
+          const newHref = this.state.linkState.href;
+          if (newHref.trim() !== '') {
+            // Set link in content
+            const contentWithEntity = content.createEntity('LINK', 'MUTABLE', {
+              href: newHref
+            });
+            const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+            const entityKey = contentWithEntity.getLastCreatedEntityKey();
+            this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+          } else {
+            // Used entered empty string - remove link
+            this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
+          }
+        }).catch(() => {
+          // User cancelled, do nothing
         });
-        const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
-        const entityKey = contentWithEntity.getLastCreatedEntityKey();
-        this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
     }
+  }
+
+  /**
+   * Handle link element property changes
+   */
+  handleLinkChange(state, event) {
+    this.setState({
+      linkState: state
+    });
   }
 
   /**
@@ -389,6 +412,7 @@ export default class TextEditor extends Component {
             tabIndex={this.props.tabIndex}
           />
         </div>
+        <Modals />
       </div>
     );
   }

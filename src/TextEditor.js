@@ -8,18 +8,21 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState } from 'draft-js';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
 import Link from './Link';
+import { ModalActions, Modals } from 'ship-components-dialog';
 
-// lib
+// Lib
 import linkStrategy from './lib/linkStrategy';
+import LinkTypes from './lib/LinkTypes';
+import LinkModal from './lib/LinkModal';
 import BlockTypes from './lib/BlockTypes';
 import InlineStyles from './lib/InlineStyles';
 import ChangeEvent from './lib/ChangeEvent';
-import {convertContentFrom, convertContentTo} from './lib/convert';
+import { convertContentFrom, convertContentTo } from './lib/convert';
 
 // CSS Module
 import css from './TextEditor.css';
@@ -63,7 +66,8 @@ export default class TextEditor extends Component {
     // Set state the first time
     this.state = {
       focus: false,
-      editorState
+      editorState,
+      linkState: null
     };
 
     // Binding
@@ -72,6 +76,8 @@ export default class TextEditor extends Component {
     this.focus = this.focus.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
+    this.handleLinkClick = this.handleLinkClick.bind(this);
+    this.handleLinkChange = this.handleLinkChange.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -200,23 +206,144 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * Determine if there are any links in the selection block
+   * @return {{entity: DraftEntityInstance, start: number, end: number, block: ContentBlock}|null}
+   */
+  getCurrentLink() {
+    const editorState = this.state.editorState;
+    const selectionState = editorState.getSelection();
+    const content = editorState.getCurrentContent();
+    const block = content.getBlockForKey(selectionState.getStartKey());
+
+    let matchedEntity = null;
+    let matchedEntityInSelection = null;
+    block.findEntityRanges((character) => {
+      if (character.getEntity() !== null) {
+        const entity = content.getEntity(character.getEntity());
+        if (entity.getType() === 'LINK') {
+          matchedEntity = entity;
+          return true;
+        }
+      }
+      return false;
+    }, (start, end) => {
+      const selStart = selectionState.getStartOffset();
+      const selEnd = selectionState.getEndOffset();
+      if (start <= selEnd && selStart <= end) {
+        matchedEntityInSelection = {
+          entity: matchedEntity,
+          block: block,
+          start: start,
+          end: end
+        };
+      }
+    });
+    return matchedEntityInSelection;
+  }
+
+  /**
+   * Toggle a link element
+   */
+  handleLinkClick(linkAction, event) {
+    if (!this.props.editable) {
+      return;
+    } else if (event) {
+      event.preventDefault();
+    }
+
+    const currentLink = this.getCurrentLink();
+    const editorState = this.state.editorState;
+    const content = editorState.getCurrentContent();
+    let selectionState = editorState.getSelection();
+
+    // If selection is collapsed, find full link
+    if (currentLink && selectionState.isCollapsed()) {
+      selectionState = new SelectionState({
+        anchorKey: currentLink.block.getKey(),
+        anchorOffset: currentLink.start,
+        focusKey: currentLink.block.getKey(),
+        focusOffset: currentLink.end,
+        isBackwards: false,
+        hasFocus: false
+      });
+    }
+
+    let title = 'Add Link';
+    let defaultUrl = '';
+
+    switch (linkAction) {
+      case 'DELETE':
+        // Delete a link
+        this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
+        break;
+
+      case 'EDIT':
+      default:
+        // Find current link
+        if (currentLink !== null) {
+          // Set default to current link href
+          title = 'Edit Link';
+          defaultUrl = currentLink.entity.getData().href;
+        }
+
+      case 'ADD':
+        // Ask for link URL
+        ModalActions.open(
+          <LinkModal
+            title={title}
+            href={defaultUrl}
+            onConfirm={this.handleLinkChange}
+          />
+        ).then(() => {
+          const newHref = this.state.linkState.href;
+          if (newHref.trim() !== '') {
+            // Set link in content
+            const contentWithEntity = content.createEntity('LINK', 'MUTABLE', {
+              href: newHref
+            });
+            const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+            const entityKey = contentWithEntity.getLastCreatedEntityKey();
+            this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+          } else {
+            // Used entered empty string - remove link
+            this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
+          }
+        }).catch(() => {
+          // User cancelled, do nothing
+        });
+    }
+  }
+
+  /**
+   * Handle link element property changes
+   */
+  handleLinkChange(state) {
+    this.setState({
+      linkState: state
+    });
+  }
+
+  /**
    * Make it all happen
    * @return    {React}
    */
   render() {
+    // Grab the props
+    const {noStyleButtons, onlyInline} = this.props;
+
     // Grab the state of the editor, part of draft-fs
     const {editorState} = this.state;
 
     // Get the current selection so we can see if we have active focus
     const selectionState = editorState.getSelection();
 
-    // Get the current style of the selection so we can change the look of the
-    // buttons
+    // Get the current style of the selection so we can change the look of the buttons
     const currentInlineStyle = editorState.getCurrentInlineStyle();
 
-    // Determing the current blockt ype
-    const blockType = editorState.getCurrentContent().getBlockForKey(selectionState.getStartKey()).getType();
-    const {noStyleButtons, onlyInline} = this.props;
+    // Determing the current block type
+    const content = editorState.getCurrentContent();
+    const blockType = content.getBlockForKey(selectionState.getStartKey()).getType();
+    const currentIsLink = this.getCurrentLink() !== null;
 
     return (
       <div className={classNames(css.container, this.props.className, 'text-editor', {
@@ -234,26 +361,37 @@ export default class TextEditor extends Component {
                 <StyleButton
                   className={this.props.buttonClass}
                   key={type.style}
-                  editorState={editorState}
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
-                  onMouseDown={this.handleInlineStyleClick.bind(this, type.style)}
+                  onClick={this.handleInlineStyleClick.bind(this, type.style)}
                   {...type}
                 />
               )}
-              {!onlyInline ? BlockTypes
-                // Allow user to select styles to show
-                .filter(type => this.props.blockTypes.has(type.style))
-                .map(type =>
-                  <StyleButton
-                    className={this.props.buttonClass}
-                    key={type.style}
-                    editorState={editorState}
-                    active={type.style === blockType}
-                    onMouseDown={this.handleBlockStyleClick.bind(this, type.style)}
-                    {...type}
-                  />
-                ) : null}
+            {LinkTypes
+              // Allow user to create links
+              .filter(type => this.props.inlineStyles.has('LINK') && type.whenLink === currentIsLink)
+              .map(type =>
+                <StyleButton
+                  className={this.props.buttonClass}
+                  key={type.action}
+                  // Determine if the style is active or not
+                  active={selectionState.getHasFocus() && currentIsLink}
+                  onClick={this.handleLinkClick.bind(this, type.action)}
+                  {...type}
+                />
+              )}
+            {!onlyInline ? BlockTypes
+              // Allow user to select styles to show
+              .filter(type => this.props.blockTypes.has(type.style))
+              .map(type =>
+                <StyleButton
+                  className={this.props.buttonClass}
+                  key={type.style}
+                  active={type.style === blockType}
+                  onClick={this.handleBlockStyleClick.bind(this, type.style)}
+                  {...type}
+                />
+              ) : null}
           </div>
         : null}
         <div
@@ -274,6 +412,7 @@ export default class TextEditor extends Component {
             tabIndex={this.props.tabIndex}
           />
         </div>
+        <Modals />
       </div>
     );
   }
@@ -306,7 +445,7 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
   noStyleButtons: false,
   onlyInline: false,
-  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
+  inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'LINK', 'CODE']),
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
   editable: true,
   type: 'html',

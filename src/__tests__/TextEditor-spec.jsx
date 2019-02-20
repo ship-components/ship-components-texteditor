@@ -1,15 +1,19 @@
 // Don't need to test these and they currently throw errors
 jest.setMock('ship-components-icon', 'div');
+jest.setMock('ship-components-textinput', 'div');
+jest.mock('ship-components-dialog', () => ({
+  Modals: 'div',
+  ModalActions: 'div'
+}));
 
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';
 import Immutable from 'immutable';
 import {mount} from 'enzyme';
-import { EditorState } from 'draft-js';
 
 describe('TextEditor', () => {
   let props = {
-    inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'CODE']),
+    inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'LINK', 'CODE']),
     blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
     value: 'Test'
   };
@@ -22,7 +26,7 @@ describe('TextEditor', () => {
 
   // Render without error
   it('should render without error', () => {
-    let element = React.createElement(
+    const element = React.createElement(
        TextEditor, // component class
        props
     );
@@ -47,8 +51,8 @@ describe('TextEditor', () => {
   });
 
   it('should support custom css classes', () => {
-    let className = 'testClass';
-    let reactTree = TestUtils.renderIntoDocument(
+    const className = 'testClass';
+    const reactTree = TestUtils.renderIntoDocument(
       <TextEditor
         className={className}
         {...props}

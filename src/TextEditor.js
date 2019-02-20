@@ -77,7 +77,7 @@ export default class TextEditor extends Component {
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
     this.handleLinkClick = this.handleLinkClick.bind(this);
-    this.handleLinkChange  = this.handleLinkChange.bind(this);
+    this.handleLinkChange = this.handleLinkChange.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -255,7 +255,7 @@ export default class TextEditor extends Component {
     const editorState = this.state.editorState;
     const content = editorState.getCurrentContent();
     let selectionState = editorState.getSelection();
-    
+
     // If selection is collapsed, find full link
     if (currentLink && selectionState.isCollapsed()) {
       selectionState = new SelectionState({
@@ -317,7 +317,7 @@ export default class TextEditor extends Component {
   /**
    * Handle link element property changes
    */
-  handleLinkChange(state, event) {
+  handleLinkChange(state) {
     this.setState({
       linkState: state
     });
@@ -370,10 +370,10 @@ export default class TextEditor extends Component {
             {LinkTypes
               // Allow user to create links
               .filter(type => this.props.inlineStyles.has('LINK') && type.whenLink === currentIsLink)
-              .map((type, key) =>
+              .map(type =>
                 <StyleButton
                   className={this.props.buttonClass}
-                  key={key}
+                  key={type.action}
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentIsLink}
                   onClick={this.handleLinkClick.bind(this, type.action)}

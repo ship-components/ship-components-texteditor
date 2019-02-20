@@ -87,7 +87,7 @@ export default class LinkModal extends Component {
           onChange={this.handleChange}
         />
       </Confirm>
-    )
+    );
   }
 }
 

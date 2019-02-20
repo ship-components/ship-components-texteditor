@@ -1,5 +1,10 @@
 // Don't need to test these and they currently throw errors
 jest.setMock('ship-components-icon', 'div');
+jest.setMock('ship-components-textinput', 'div');
+jest.mock('ship-components-dialog', () => ({
+  Modals: 'div',
+  ModalActions: 'div'
+}));
 
 import React from 'react';
 import TestUtils from 'react-dom/test-utils';

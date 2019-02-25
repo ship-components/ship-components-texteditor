@@ -412,7 +412,6 @@ export default class TextEditor extends Component {
             tabIndex={this.props.tabIndex}
           />
         </div>
-        <Modals />
       </div>
     );
   }

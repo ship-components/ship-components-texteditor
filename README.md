@@ -146,6 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 2.1.3 - Modals will not be not part of the texteditor render method
 * 2.1.2 - Added basic convert to hyperlink functionality
 * 2.0.0 - Upgrade to React 16
 * 1.0.2 - Update to use postcss-calc 6

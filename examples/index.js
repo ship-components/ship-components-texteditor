@@ -4,6 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Modals from 'ship-components-dialog/src/Modals';
 import TextEditor from '../src/TextEditor';
 
 class Examples extends React.Component {
@@ -127,6 +128,7 @@ class Examples extends React.Component {
             </code>
           </div>
         </div>
+        <Modals />
       </div>
     );
   }

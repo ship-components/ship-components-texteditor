@@ -74,6 +74,7 @@ export default class TextEditor extends Component {
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.focus = this.focus.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
     this.handleLinkClick = this.handleLinkClick.bind(this);
@@ -172,13 +173,19 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * MouseDown on a button
+   */
+  handleMouseDown(event) {
+    // Prevent losing focus of editor
+    event.preventDefault();
+  }
+
+  /**
    * Toggle an inline style
    */
   handleInlineStyleClick(inlineStyle, event) {
     if (!this.props.editable) {
       return;
-    } else if (event) {
-      event.preventDefault();
     }
 
     // Generate new state with inline style applied
@@ -194,8 +201,6 @@ export default class TextEditor extends Component {
   handleBlockStyleClick(blockStyle, event) {
     if (!this.props.editable) {
       return;
-    } else if (event) {
-      event.preventDefault();
     }
 
     // Generate new state with block style applied
@@ -247,8 +252,6 @@ export default class TextEditor extends Component {
   handleLinkClick(linkAction, event) {
     if (!this.props.editable) {
       return;
-    } else if (event) {
-      event.preventDefault();
     }
 
     const currentLink = this.getCurrentLink();
@@ -363,6 +366,7 @@ export default class TextEditor extends Component {
                   key={type.style}
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
+                  onMouseDown={this.handleMouseDown}
                   onClick={this.handleInlineStyleClick.bind(this, type.style)}
                   {...type}
                 />
@@ -376,6 +380,7 @@ export default class TextEditor extends Component {
                   key={type.action}
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentIsLink}
+                  onMouseDown={this.handleMouseDown}
                   onClick={this.handleLinkClick.bind(this, type.action)}
                   {...type}
                 />
@@ -388,6 +393,7 @@ export default class TextEditor extends Component {
                   className={this.props.buttonClass}
                   key={type.style}
                   active={type.style === blockType}
+                  onMouseDown={this.handleMouseDown}
                   onClick={this.handleBlockStyleClick.bind(this, type.style)}
                   {...type}
                 />

@@ -5,10 +5,16 @@
 // Modules
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import linkifyIt from 'linkify-it';
+import tlds from 'tlds';
 
 // Components
 import { Confirm } from 'ship-components-dialog';
 import TextInput from 'ship-components-textinput';
+
+// Setup
+const linkify = linkifyIt();
+linkify.tlds(tlds);
 
 export default class LinkModal extends Component {
   constructor(props) {
@@ -38,8 +44,12 @@ export default class LinkModal extends Component {
    * Handle user input for links
    */
   handleChange(event) {
+    // parse text
+    let enteredHref = event.target.value;
+    const links = linkify.match(enteredHref);
+    // set extract text
     this.setState({
-      href: event.target.value
+      href: links && links[0] ? links[0].url : enteredHref
     });
   }
 
@@ -64,7 +74,7 @@ export default class LinkModal extends Component {
   /**
    * User clicks close
    */
-  handleClose() {
+  handleClose(event) {
     if (this.props.onClose) {
       this.props.onClose(this.state, event);
     }

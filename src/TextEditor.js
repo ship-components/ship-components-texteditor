@@ -8,12 +8,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Entity, Modifier, SelectionState } from 'draft-js';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
 import Link from './Link';
-import { ModalActions, Modals } from 'ship-components-dialog';
+import { ModalActions } from 'ship-components-dialog';
 
 // Lib
 import linkStrategy from './lib/linkStrategy';
@@ -217,14 +217,14 @@ export default class TextEditor extends Component {
   getCurrentLink() {
     const editorState = this.state.editorState;
     const selectionState = editorState.getSelection();
-    const content = editorState.getCurrentContent();
-    const block = content.getBlockForKey(selectionState.getStartKey());
+    const currentContent = editorState.getCurrentContent();
+    const block = currentContent.getBlockForKey(selectionState.getStartKey());
 
     let matchedEntity = null;
     let matchedEntityInSelection = null;
     block.findEntityRanges((character) => {
       if (character.getEntity() !== null) {
-        const entity = content.getEntity(character.getEntity());
+        const entity = currentContent.getEntity(character.getEntity());
         if (entity.getType() === 'LINK') {
           matchedEntity = entity;
           return true;
@@ -256,7 +256,7 @@ export default class TextEditor extends Component {
 
     const currentLink = this.getCurrentLink();
     const editorState = this.state.editorState;
-    const content = editorState.getCurrentContent();
+    const currentContent = editorState.getCurrentContent();
     let selectionState = editorState.getSelection();
 
     // If selection is collapsed, find full link
@@ -300,13 +300,22 @@ export default class TextEditor extends Component {
         ).then(() => {
           const newHref = this.state.linkState.href;
           if (newHref.trim() !== '') {
-            // Set link in content
-            const contentWithEntity = content.createEntity('LINK', 'MUTABLE', {
+            // Set link entity
+            const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
               href: newHref
             });
-            const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
             const entityKey = contentWithEntity.getLastCreatedEntityKey();
-            this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+            // Create link
+            if (selectionState.isCollapsed()) {
+              // No selection, create link
+              const contentWithEntityText = Modifier.insertText(currentContent, selectionState, newHref, null, entityKey);
+              const newEditorState = EditorState.push(editorState, contentWithEntityText, 'create-entity');
+              this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+            } else {
+              // Convert selection into link
+              const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+              this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+            }
           } else {
             // Used entered empty string - remove link
             this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
@@ -344,8 +353,8 @@ export default class TextEditor extends Component {
     const currentInlineStyle = editorState.getCurrentInlineStyle();
 
     // Determing the current block type
-    const content = editorState.getCurrentContent();
-    const blockType = content.getBlockForKey(selectionState.getStartKey()).getType();
+    const currentContent = editorState.getCurrentContent();
+    const blockType = currentContent.getBlockForKey(selectionState.getStartKey()).getType();
     const currentIsLink = this.getCurrentLink() !== null;
 
     return (

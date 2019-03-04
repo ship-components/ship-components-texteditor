@@ -8,7 +8,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Entity, Modifier, SelectionState } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState } from 'draft-js';
+import linkifyIt from 'linkify-it';
+import tlds from 'tlds';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
@@ -27,6 +29,10 @@ import { convertContentFrom, convertContentTo } from './lib/convert';
 // CSS Module
 import css from './TextEditor.css';
 
+// Setup Linkify
+const linkify = linkifyIt();
+linkify.tlds(tlds);
+
 /**
  * Helper function to setup any decorators
  * @param    {Object}    props
@@ -36,13 +42,11 @@ function setupDecorators(props) {
   // Configure custom decorators
   let decorators = [];
 
-  // Convert links inline
-  if (props.convertLinksInline) {
-    decorators.push({
-      strategy: linkStrategy,
-      component: Link
-    });
-  }
+  // Add link component support
+  decorators.push({
+    strategy: linkStrategy,
+    component: Link
+  });
 
   return decorators;
 }
@@ -138,10 +142,75 @@ export default class TextEditor extends Component {
 
   /**
    * Text editor change
+   * @param {Immutable} editorState
    */
   handleEditorChange(editorState) {
     // Get the current selection so we can see if we have active focus
-    const focus = editorState.getSelection().getHasFocus();
+    const selectionState = editorState.getSelection();
+    const focus = selectionState.getHasFocus();
+
+    // Convert links inline
+    if (this.props.convertLinksInline) {
+      // Get the current content
+      let currentContent = editorState.getCurrentContent();
+      // Get the current block, so we can see if there are matches for links
+      let block = currentContent.getBlockForKey(selectionState.getStartKey());
+
+      // First, find and remove all existing links that were automatically matched
+      block.findEntityRanges((character) => {
+        // Find all existing match links
+        if (character.getEntity() !== null) {
+          const entity = currentContent.getEntity(character.getEntity());
+          if (entity.getType() === 'LINK' && entity.getData().created === 'match') {
+            return true;
+          }
+        }
+        return false;
+      }, (start, end) => {
+        // Remove previous match links
+        const linkSelectionState = new SelectionState({
+          anchorKey: block.getKey(),
+          anchorOffset: start,
+          focusKey: block.getKey(),
+          focusOffset: end
+        });
+        // Remove entity, reset immutable states
+        editorState = RichUtils.toggleLink(editorState, linkSelectionState, null);
+        currentContent = editorState.getCurrentContent();
+        block = currentContent.getBlockForKey(selectionState.getStartKey());
+      });
+
+      // Second, find links based on the current block
+      const links = linkify.match(block.get('text'));
+      if (links !== null) {
+        // Loop through each matched link
+        for (let i = 0; i < links.length; i += 1) {
+          // Create selection from matched link
+          const textSelectionState = new SelectionState({
+            anchorKey: block.getKey(),
+            anchorOffset: links[i].index,
+            focusKey: block.getKey(),
+            focusOffset: links[i].lastIndex
+          });
+          // Check if there are any existing links
+          const previousLink = this.getLink(editorState, textSelectionState);
+          if (!previousLink) {
+            // Create link entity
+            const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
+              href: links[i].url,
+              created: 'match'
+            });
+            const entityKey = contentWithEntity.getLastCreatedEntityKey();
+            // Convert text to a link
+            editorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+            editorState = RichUtils.toggleLink(editorState, textSelectionState, entityKey);
+          }
+        }
+      }
+
+      // Reset selection to original state
+      editorState = EditorState.acceptSelection(editorState, selectionState);
+    }
 
     this.setState({
       editorState,
@@ -212,21 +281,25 @@ export default class TextEditor extends Component {
 
   /**
    * Determine if there are any links in the selection block
-   * @return {{entity: DraftEntityInstance, start: number, end: number, block: ContentBlock}|null}
+   * @param  {Immutable} editorState
+   * @param  {Immutable} selectionState
+   * @return {{entity: DraftEntityInstance, block: ContentBlock, blockKey: string, selection: SelectionState}|null}
    */
-  getCurrentLink() {
-    const editorState = this.state.editorState;
-    const selectionState = editorState.getSelection();
+  getLink(editorState = this.state.editorState, selectionState = this.state.editorState.getSelection()) {
     const currentContent = editorState.getCurrentContent();
     const block = currentContent.getBlockForKey(selectionState.getStartKey());
-
+    // Initiate matches to null
     let matchedEntity = null;
+    let matchedEntityKey = null;
     let matchedEntityInSelection = null;
     block.findEntityRanges((character) => {
+      // Find all entities
       if (character.getEntity() !== null) {
         const entity = currentContent.getEntity(character.getEntity());
         if (entity.getType() === 'LINK') {
+          // Matched a link entity
           matchedEntity = entity;
+          matchedEntityKey = character.getEntity();
           return true;
         }
       }
@@ -234,12 +307,19 @@ export default class TextEditor extends Component {
     }, (start, end) => {
       const selStart = selectionState.getStartOffset();
       const selEnd = selectionState.getEndOffset();
+      // Check if selection and found entity overlaps
       if (start <= selEnd && selStart <= end) {
+        // Set matched link to be returned
         matchedEntityInSelection = {
           entity: matchedEntity,
+          entityKey: matchedEntityKey,
           block: block,
-          start: start,
-          end: end
+          selection: new SelectionState({
+            anchorKey: block.getKey(),
+            anchorOffset: start,
+            focusKey: block.getKey(),
+            focusOffset: end
+          })
         };
       }
     });
@@ -254,21 +334,14 @@ export default class TextEditor extends Component {
       return;
     }
 
-    const currentLink = this.getCurrentLink();
-    const editorState = this.state.editorState;
-    const currentContent = editorState.getCurrentContent();
+    const currentLink = this.getLink();
+    let editorState = this.state.editorState;
     let selectionState = editorState.getSelection();
+    const currentContent = editorState.getCurrentContent();
 
     // If selection is collapsed, find full link
     if (currentLink && selectionState.isCollapsed()) {
-      selectionState = new SelectionState({
-        anchorKey: currentLink.block.getKey(),
-        anchorOffset: currentLink.start,
-        focusKey: currentLink.block.getKey(),
-        focusOffset: currentLink.end,
-        isBackwards: false,
-        hasFocus: false
-      });
+      selectionState = currentLink.selection;
     }
 
     let title = 'Add Link';
@@ -298,28 +371,38 @@ export default class TextEditor extends Component {
             onConfirm={this.handleLinkChange}
           />
         ).then(() => {
-          const newHref = this.state.linkState.href;
-          if (newHref.trim() !== '') {
+          // Check if href was entered
+          const enteredHref = this.state.linkState.href;
+          if (enteredHref.trim() !== '') {
+            // Parse link href
+            const links = linkify.match(enteredHref);
+            const newHref = (links !== null) ? links[0].url : enteredHref;
             // Set link entity
             const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
-              href: newHref
+              href: newHref,
+              created: 'insert'
             });
             const entityKey = contentWithEntity.getLastCreatedEntityKey();
+            // Remove any previous links
+            if (currentLink) {
+              editorState = RichUtils.toggleLink(editorState, selectionState, null);
+            }
             // Create link
             if (selectionState.isCollapsed()) {
               // No selection, create link
               const contentWithEntityText = Modifier.insertText(currentContent, selectionState, newHref, null, entityKey);
-              const newEditorState = EditorState.push(editorState, contentWithEntityText, 'create-entity');
-              this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+              editorState = EditorState.push(editorState, contentWithEntityText, 'create-entity');
             } else {
               // Convert selection into link
-              const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
-              this.handleEditorChange(RichUtils.toggleLink(newEditorState, selectionState, entityKey));
+              editorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
             }
+            editorState = RichUtils.toggleLink(editorState, selectionState, entityKey);
           } else {
             // Used entered empty string - remove link
-            this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
+            editorState = RichUtils.toggleLink(editorState, selectionState, null);
           }
+          // Update editor with changes
+          this.handleEditorChange(editorState);
         }).catch(() => {
           // User cancelled, do nothing
         });
@@ -355,7 +438,7 @@ export default class TextEditor extends Component {
     // Determing the current block type
     const currentContent = editorState.getCurrentContent();
     const blockType = currentContent.getBlockForKey(selectionState.getStartKey()).getType();
-    const currentIsLink = this.getCurrentLink() !== null;
+    const currentIsLink = this.getLink() !== null;
 
     return (
       <div className={classNames(css.container, this.props.className, 'text-editor', {

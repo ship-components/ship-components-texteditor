@@ -5,16 +5,10 @@
 // Modules
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import linkifyIt from 'linkify-it';
-import tlds from 'tlds';
 
 // Components
 import { Confirm } from 'ship-components-dialog';
 import TextInput from 'ship-components-textinput';
-
-// Setup
-const linkify = linkifyIt();
-linkify.tlds(tlds);
 
 export default class LinkModal extends Component {
   constructor(props) {
@@ -44,12 +38,9 @@ export default class LinkModal extends Component {
    * Handle user input for links
    */
   handleChange(event) {
-    // parse text
-    let enteredHref = event.target.value;
-    const links = linkify.match(enteredHref);
-    // set extract text
+    // Update state to entered value
     this.setState({
-      href: links && links[0] ? links[0].url : enteredHref
+      href: event.target.value
     });
   }
 
@@ -57,6 +48,7 @@ export default class LinkModal extends Component {
    * User clicks delete link
    */
   handleDelete(event) {
+    // Delete link callback
     if (this.props.onDelete) {
       this.props.onDelete(event);
     }
@@ -66,6 +58,7 @@ export default class LinkModal extends Component {
    * User clicks confirm
    */
   handleConfirm(event) {
+    // Confirm link options callback
     if (this.props.onConfirm) {
       this.props.onConfirm(this.state, event);
     }
@@ -75,6 +68,7 @@ export default class LinkModal extends Component {
    * User clicks close
    */
   handleClose(event) {
+    // Cancel link modal callback
     if (this.props.onClose) {
       this.props.onClose(this.state, event);
     }

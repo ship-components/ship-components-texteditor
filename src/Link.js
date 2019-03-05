@@ -3,17 +3,11 @@
  */
 
 import React from 'react';
-import linkifyIt from 'linkify-it';
-import tlds from 'tlds';
-
-const linkify = linkifyIt();
-linkify.tlds(tlds);
 
 export default function Link(props) {
   // get props
   const {
     contentState,
-    decoratedText,
     entityKey,
 
     href,
@@ -33,15 +27,10 @@ export default function Link(props) {
     alt
   };
 
-  // generate href prop
+  // find entity
   if (entityKey) {
-    // extract entity
+    // extract entity href
     anchorProps.href = contentState.getEntity(entityKey).getData().href;
-  } else {
-    // parse text
-    const links = linkify.match(decoratedText);
-    // extract text
-    anchorProps.href = links && links[0] ? links[0].url : '';
   }
 
   return (

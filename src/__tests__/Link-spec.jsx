@@ -13,7 +13,7 @@ describe('Link', () => {
   it('should render without error', () => {
     let element = React.createElement(
        Link,
-       {decoratedText: 'www.internet.com'},
+       {href: 'www.internet.com'},
        'test'
     );
 
@@ -26,7 +26,7 @@ describe('Link', () => {
       <Link
         alt='100 years forever Rick and Morty'
         title='Interdimensional Twitter'
-        decoratedText='https://twitter.com/RickandMorty'
+        href='https://twitter.com/RickandMorty'
         className='real-classy-stuff'
       >
         Wubba lubba dub dub!

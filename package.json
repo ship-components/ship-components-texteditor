@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "2.1.7",
+  "version": "2.1.6",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {

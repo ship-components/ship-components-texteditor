@@ -152,64 +152,68 @@ export default class TextEditor extends Component {
     // Convert links inline
     if (this.props.convertLinksInline) {
       // Get the current content
+      const previousContent = this.state.editorState.getCurrentContent();
       let currentContent = editorState.getCurrentContent();
-      // Get the current block, so we can see if there are matches for links
-      let block = currentContent.getBlockForKey(selectionState.getStartKey());
 
-      // First, find and remove all existing links that were automatically matched
-      block.findEntityRanges((character) => {
-        // Find all existing match links
-        if (character.getEntity() !== null) {
-          const entity = currentContent.getEntity(character.getEntity());
-          if (entity.getType() === 'LINK' && entity.getData().created === 'match') {
-            return true;
+      if (previousContent.isEmpty(currentContent)) {
+        // Get the current block, so we can see if there are matches for links
+        let block = currentContent.getBlockForKey(selectionState.getStartKey());
+
+        // First, find and remove all existing links that were automatically matched
+        block.findEntityRanges((character) => {
+          // Find all existing match links
+          if (character.getEntity() !== null) {
+            const entity = currentContent.getEntity(character.getEntity());
+            if (entity.getType() === 'LINK' && entity.getData().created === 'match') {
+              return true;
+            }
           }
-        }
-        return false;
-      }, (start, end) => {
-        // Remove previous match links
-        const linkSelectionState = new SelectionState({
-          anchorKey: block.getKey(),
-          anchorOffset: start,
-          focusKey: block.getKey(),
-          focusOffset: end
-        });
-        // Remove entity, reset immutable states
-        editorState = RichUtils.toggleLink(editorState, linkSelectionState, null);
-        currentContent = editorState.getCurrentContent();
-        block = currentContent.getBlockForKey(selectionState.getStartKey());
-      });
-
-      // Second, find links based on the current block
-      const links = linkify.match(block.get('text'));
-      if (links !== null) {
-        // Loop through each matched link
-        for (let i = 0; i < links.length; i += 1) {
-          // Create selection from matched link
-          const textSelectionState = new SelectionState({
+          return false;
+        }, (start, end) => {
+          // Remove previous match links
+          const linkSelectionState = new SelectionState({
             anchorKey: block.getKey(),
-            anchorOffset: links[i].index,
+            anchorOffset: start,
             focusKey: block.getKey(),
-            focusOffset: links[i].lastIndex
+            focusOffset: end
           });
-          // Check if there are any existing links
-          const previousLink = this.getLink(editorState, textSelectionState);
-          if (!previousLink) {
-            // Create link entity
-            const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
-              href: links[i].url,
-              created: 'match'
+          // Remove entity, reset immutable states
+          editorState = RichUtils.toggleLink(editorState, linkSelectionState, null);
+          currentContent = editorState.getCurrentContent();
+          block = currentContent.getBlockForKey(selectionState.getStartKey());
+        });
+
+        // Second, find links based on the current block
+        const links = linkify.match(block.get('text'));
+        if (links !== null) {
+          // Loop through each matched link
+          for (let i = 0; i < links.length; i += 1) {
+            // Create selection from matched link
+            const textSelectionState = new SelectionState({
+              anchorKey: block.getKey(),
+              anchorOffset: links[i].index,
+              focusKey: block.getKey(),
+              focusOffset: links[i].lastIndex
             });
-            const entityKey = contentWithEntity.getLastCreatedEntityKey();
-            // Convert text to a link
-            editorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
-            editorState = RichUtils.toggleLink(editorState, textSelectionState, entityKey);
+            // Check if there are any existing links
+            const previousLink = this.getLink(editorState, textSelectionState);
+            if (!previousLink) {
+              // Create link entity
+              const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
+                href: links[i].url,
+                created: 'match'
+              });
+              const entityKey = contentWithEntity.getLastCreatedEntityKey();
+              // Convert text to a link
+              editorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+              editorState = RichUtils.toggleLink(editorState, textSelectionState, entityKey);
+            }
           }
         }
-      }
 
-      // Reset selection to original state
-      editorState = EditorState.acceptSelection(editorState, selectionState);
+        // Reset selection to original state
+        editorState = EditorState.acceptSelection(editorState, selectionState);
+      }
     }
 
     this.setState({

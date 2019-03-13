@@ -151,11 +151,13 @@ export default class TextEditor extends Component {
 
     // Convert links inline
     if (this.props.convertLinksInline) {
-      // Get the current content
+      // Get the previous content
       const previousContent = this.state.editorState.getCurrentContent();
+      // Get the current content
       let currentContent = editorState.getCurrentContent();
 
-      if (previousContent.isEmpty(currentContent)) {
+      // Check if anything changed
+      if (previousContent !== currentContent) {
         // Get the current block, so we can see if there are matches for links
         let block = currentContent.getBlockForKey(selectionState.getStartKey());
 

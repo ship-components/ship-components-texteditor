@@ -303,7 +303,6 @@ export default class TextEditor extends Component {
             return false;
           }, (start, end) => {
             // Remove previously matched link entity
-            const entityText = blockText.slice(start, end);
             const linkSelectionState = new SelectionState({
               anchorKey: block.getKey(),
               anchorOffset: start,

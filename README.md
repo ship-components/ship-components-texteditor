@@ -146,6 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 2.1.10 - Continued possible onChange loop bug fixes for 2.1.8 and 2.1.9
 * 2.1.9 - Fixes breaking bug in 2.1.8 happening when certain links in text are converted.
 * 2.1.8 - Optimized link recognizing to call the onChange callback only if neccessary.
 * 2.1.7 - Performance improvements, and fix for toolbar buttons not toggling without a selection.

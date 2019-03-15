@@ -302,18 +302,23 @@ export default class TextEditor extends Component {
             }
             return false;
           }, (start, end) => {
-            // Remove previously matched link entity
-            const linkSelectionState = new SelectionState({
-              anchorKey: block.getKey(),
-              anchorOffset: start,
-              focusKey: block.getKey(),
-              focusOffset: end
-            });
-            editorState = RichUtils.toggleLink(editorState, linkSelectionState, null);
-            // Reset selection to original state
-            editorState = EditorState.acceptSelection(editorState, selectionState);
-            // Reset immutable content state reference
-            currentContent = editorState.getCurrentContent();
+            // Check if link is invalid or changed
+            const entityText = blockText.slice(start, end);
+            const matchLink = linkify.match(entityText);
+            if (matchLink === null) {
+              // Remove previously matched link entity
+              const linkSelectionState = new SelectionState({
+                anchorKey: block.getKey(),
+                anchorOffset: start,
+                focusKey: block.getKey(),
+                focusOffset: end
+              });
+              editorState = RichUtils.toggleLink(editorState, linkSelectionState, null);
+              // Reset selection to original state
+              editorState = EditorState.acceptSelection(editorState, selectionState);
+              // Reset immutable content state reference
+              currentContent = editorState.getCurrentContent();
+            }
           });
         }
 
@@ -331,6 +336,7 @@ export default class TextEditor extends Component {
             });
             // Check if there are any existing links
             const previousLink = this.getLink(editorState, matchSelectionState);
+            const previousEntityData = previousLink && previousLink.entity.getData();
             if (!previousLink) {
               // Create link entity
               const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
@@ -343,6 +349,19 @@ export default class TextEditor extends Component {
               editorState = RichUtils.toggleLink(editorState, matchSelectionState, entityKey);
               // Reset selection to original state
               editorState = EditorState.acceptSelection(editorState, selectionState);
+            } else if (previousEntityData.created === 'match') {
+              // Check if existing entity has changed
+              const entityKey = previousLink.entityKey;
+              if (matchLinks[i].url !== previousEntityData.href) {
+                // Modify link entity if matched url has changed
+                const contentWithEntity = currentContent.mergeEntityData(entityKey, {
+                  href: matchLinks[i].url
+                });
+                editorState = EditorState.push(editorState, contentWithEntity);
+                editorState = RichUtils.toggleLink(editorState, matchSelectionState, entityKey);
+                // Reset selection to original state
+                editorState = EditorState.acceptSelection(editorState, selectionState);
+              }
             }
           }
         }

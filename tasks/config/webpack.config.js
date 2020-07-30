@@ -79,8 +79,14 @@ module.exports = {
     require('postcss-nested'),
     require('postcss-simple-vars')({
       variables: {
+        'base-grid-size': '4px',
         'primary-color' : '#42aa65',
-        'base-grid-size': '4px'
+        'accent-color' : '#38b889',
+        'warning-color' : '#d43c36',
+        'success-color' : '#50a111',
+        'primary-font-color': '#333',
+        'inverse-font-color': '#fff',
+        'primary-background-color' : '#fff'
       }
     }),
     require('postcss-color-hex-alpha'),

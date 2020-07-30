@@ -572,7 +572,7 @@ TextEditor.propTypes = {
   buttonClass: PropTypes.string,
   editable: PropTypes.bool,
   value: PropTypes.any.isRequired,
-  type: PropTypes.oneOf(['html', 'json', 'Immutable']),
+  type: PropTypes.oneOf(['html', 'text', 'json', 'Immutable']),
   spellCheck: PropTypes.bool,
   convertLinksInline: PropTypes.bool,
   stripPastedStyles: PropTypes.bool,

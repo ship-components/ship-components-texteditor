@@ -1,9 +1,12 @@
+import { ContentBlock, ContentState } from "draft-js";
+
 /**
  * Parse text to find link entities and return them in the callback.
  * If found, the Link component is used
- * @param    {Immutable}      contentBlock    [description]
- * @param    {Function}       callback        [description]
- * @param    {Immutable}      contentState    [description]
+ *
+ * @param    {ContentBlock}      contentBlock
+ * @param    {Function}          callback
+ * @param    {ContentState}      contentState
  */
 export default function(contentBlock, callback, contentState) {
   // Find & Apply Entities

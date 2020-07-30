@@ -29,7 +29,13 @@ export function convertContentFrom(value, type) {
   } else if (type === 'json') {
     return convertFromRaw(value);
   } else if (type === 'html') {
-    return convertFromHTML(value);
+    return convertFromHTML({
+      htmlToEntity: (nodeName, node, createEntity) => {
+        if (nodeName === 'a') {
+          return createEntity('LINK', 'MUTABLE', { href: node.href })
+        }
+      },
+    })(value);
   } else {
     return value;
   }
@@ -46,7 +52,14 @@ export function convertContentTo(content, type) {
   if (type === 'json') {
     return convertToRaw(content);
   } else if (type === 'html') {
-    return convertToHTML(content);
+    return convertToHTML({
+      entityToHTML: (entity, text) => {
+        if (entity.type === 'LINK') {
+          return <a href={entity.data.href}>{text}</a>;
+        }
+        return text;
+      }
+    })(content);
   } else if (type === 'text') {
     return convertHTMLToString(convertToHTML(content));
   } else {

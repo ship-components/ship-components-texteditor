@@ -1,0 +1,35 @@
+.wrap {
+  position: relative;
+}
+
+.list,
+.empty {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+
+.list {
+  margin: 0;
+  max-width: 100vw;
+  min-width: 140px;
+}
+
+.listItem {
+  padding: 4px 6px;
+
+  &:hover {
+    background: $primary-color;
+    color: $primary-background-color;
+    cursor: pointer;
+  }
+}
+
+.empty {
+  color: #ccc;
+  font-style: italic;
+  padding: 4px 6px;
+}

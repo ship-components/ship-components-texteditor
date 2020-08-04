@@ -39,7 +39,24 @@ export function convertMentions(editorState) {
           matchedSelectionState.getAnchorOffset(),
           matchedSelectionState.getEndOffset()
         );
-        if (!isSelectionInside && matchedUsername) {
+        if (isSelectionInside) {
+          const previousMentionSuggestion = entityState.isEntityType('MENTION-SUGGESTION') ? entityState.getEntity() : null;
+          if (!previousMentionSuggestion) {
+            // Create mention suggestion entity
+            contentState = contentState.createEntity('MENTION-SUGGESTION', 'MUTABLE', {
+              username: matchedUsername
+            });
+            // Add new mention suggestion entity
+            const entityKey = contentState.getLastCreatedEntityKey();
+            contentState = Modifier.applyEntity(contentState, matchedSelectionState, entityKey);
+          } else {
+            const previousEntityKey = entityState.getEntityKey();
+            contentState = contentState.mergeEntityData(previousEntityKey, {
+              username: matchedUsername
+            });
+            contentState = Modifier.applyEntity(contentState, matchedSelectionState, previousEntityKey);
+          }
+        } else if (matchedUsername) {
           // Create mention entity
           contentState = contentState.createEntity('MENTION', 'IMMUTABLE', {
             username: matchedUsername

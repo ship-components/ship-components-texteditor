@@ -14,15 +14,18 @@ import tlds from 'tlds';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
+import Autocomplete from './Autocomplete';
 import Link from './Link/Link';
 import LinkModal from './Link/LinkModal';
 import Mention from './Mention/Mention';
+import MentionSuggestion from './Mention/MentionSuggestion';
 import { ModalActions } from 'ship-components-dialog';
 
 // Lib
 import EntityState from './lib/EntityState';
 import linkStrategy from './lib/decorators/linkStrategy';
 import mentionStrategy from './lib/decorators/mentionStrategy';
+import mentionSuggestionStrategy from './lib/decorators/mentionSuggestionStrategy';
 import LinkTypes from './lib/LinkTypes';
 import BlockTypes from './lib/BlockTypes';
 import InlineStyles from './lib/InlineStyles';
@@ -56,8 +59,12 @@ function setupDecorators(props) {
 
   // Add mention component support
   decorators.push({
+    strategy: mentionSuggestionStrategy,
+    component: MentionSuggestion
+  });
+  decorators.push({
     strategy: mentionStrategy,
-    component: props.mentionComponent
+    component: Mention
   });
 
   return decorators;
@@ -97,7 +104,8 @@ export default class TextEditor extends Component {
     // Set state the first time
     this.state = {
       editorState,
-      entityState
+      entityState,
+      suggestions: props.suggestions
     };
 
     // Binding
@@ -108,6 +116,7 @@ export default class TextEditor extends Component {
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
     this.handleLinkClick = this.handleLinkClick.bind(this);
+    this.handleSuggestionClick = this.handleSuggestionClick.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -116,7 +125,14 @@ export default class TextEditor extends Component {
    */
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.editable !== this.props.editable ||
+           nextProps.suggestions !== this.props.suggestions ||
            nextState.editorState !== this.state.editorState;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      suggestions: nextProps.suggestions
+    });
   }
 
   /**
@@ -340,6 +356,20 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * Click handler for an autocomplete suggestion
+   */
+  handleSuggestionClick(suggestion) {
+    let editorState = this.state.editorState;
+    const currentContent = this.state.editorState.getCurrentContent();
+    const entitySelection = this.state.entityState.getEntitySelection();
+    // Add suggestion
+    const contentWithEntityText = Modifier.replaceText(currentContent, entitySelection, `${suggestion} `);
+    editorState = EditorState.push(editorState, contentWithEntityText, 'create-entity');
+    // Update editor with changes
+    this.handleEditorChange(editorState);
+  }
+
+  /**
    * Make it all happen
    * @return    {React}
    */
@@ -348,7 +378,7 @@ export default class TextEditor extends Component {
     const { noStyleButtons, onlyInline } = this.props;
 
     // Grab the state of the editor, part of draft-fs
-    const { editorState, entityState } = this.state;
+    const { editorState, entityState, suggestions } = this.state;
 
     // Get the current selection so we can see if we have active focus
     const selectionState = editorState.getSelection();
@@ -437,6 +467,10 @@ export default class TextEditor extends Component {
             tabIndex={this.props.tabIndex}
           />
         </div>
+        <Autocomplete
+          suggestions={suggestions}
+          onClick={this.handleSuggestionClick}
+        />
       </div>
     );
   }
@@ -455,12 +489,13 @@ TextEditor.propTypes = {
   editable: PropTypes.bool,
   value: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['html', 'text', 'json', 'Immutable']),
-  mentionComponent: PropTypes.elementType,
+  suggestions: PropTypes.instanceOf(Immutable.OrderedMap),
   convertLinksInline: PropTypes.bool,
   noStyleButtons: PropTypes.bool,
   onlyInline: PropTypes.bool,
   spellCheck: PropTypes.bool,
-  stripPastedStyles: PropTypes.bool
+  stripPastedStyles: PropTypes.bool,
+  onChange: PropTypes.func
 };
 
 /**
@@ -472,10 +507,11 @@ TextEditor.defaultProps = {
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
   editable: true,
   type: 'html',
-  mentionComponent: Mention,
+  suggestions: undefined,
   convertLinksInline: true,
   noStyleButtons: false,
   onlyInline: false,
   spellCheck: true,
-  stripPastedStyles: true
+  stripPastedStyles: true,
+  onChange: undefined
 };

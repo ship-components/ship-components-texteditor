@@ -1,5 +1,5 @@
 import {ContentState, convertToRaw, convertFromRaw} from 'draft-js';
-import {convertFromHTML, convertToHTML} from 'draft-convert';
+import { convertFromHTML, convertToHTML } from 'draft-convert';
 
 /**
  * Removes the HTML tags from Strings
@@ -7,7 +7,7 @@ import {convertFromHTML, convertToHTML} from 'draft-convert';
  * @param     {String}    str
  * @return    {String}
  */
-function convertHTMLToString(str) {
+export function convertHTMLToString(str) {
   if (typeof str !== 'string') {
     return str;
   }
@@ -66,7 +66,7 @@ export function convertContentTo(content, type) {
       }
     })(content);
   } else if (type === 'text') {
-    return convertHTMLToString(convertToHTML(content));
+    return convertHTMLToString(convertContentTo(content, 'html'));
   } else {
     return content;
   }

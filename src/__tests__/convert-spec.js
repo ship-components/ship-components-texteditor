@@ -21,11 +21,11 @@ describe('convertContentTo', () => {
 		expect(typeof content).toBe('string');
 	});
 
-	it('strips html from a string', () => {
-		let testString = 'TEST_CONTENT';
-		let htmlString = '<a href="#">' + testString + '</a>';
-		let result = convertContentTo(htmlString, 'text');
-		expect(result).toBe(testString);
+	it('converts DraftJS content to string', () => {
+		expect(draftJsContent).toBeInstanceOf(ContentState);
+		let content = convertContentTo(draftJsContent, 'text');
+		expect(typeof content).toBe('string');
+		expect(content).toBe('some content');
 	});
 });
 

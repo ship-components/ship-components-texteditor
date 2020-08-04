@@ -1,4 +1,5 @@
 import { EntityInstance, SelectionState, ContentState } from 'draft-js';
+import Immutable from 'immutable';
 
 export default class EntityState extends Immutable.Record({
   entity: null,

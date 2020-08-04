@@ -1,4 +1,4 @@
-import { ContentBlock, ContentState } from "draft-js";
+import { ContentBlock, ContentState } from 'draft-js';
 
 /**
  * Parse text to find link entities and return them in the callback.

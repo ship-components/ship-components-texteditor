@@ -58,6 +58,11 @@ export function convertContentTo(content, type) {
           return <a href={entity.data.href}>{text}</a>;
         }
         return text;
+      },
+      blockToHTML: (block) => {
+        if (block.type === 'code-block') {
+          return <blockquote />
+        }
       }
     })(content);
   } else if (type === 'text') {

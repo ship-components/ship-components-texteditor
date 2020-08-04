@@ -14,19 +14,23 @@ import tlds from 'tlds';
 
 // Components & Helpers
 import StyleButton from './StyleButton';
-import Link from './Link';
+import Link from './Link/Link';
+import LinkModal from './Link/LinkModal';
+import Mention from './Mention/Mention';
 import { ModalActions } from 'ship-components-dialog';
 
 // Lib
-import linkStrategy from './lib/linkStrategy';
+import EntityState from './lib/EntityState';
+import linkStrategy from './lib/decorators/linkStrategy';
+import mentionStrategy from './lib/decorators/mentionStrategy';
 import LinkTypes from './lib/LinkTypes';
-import LinkModal from './lib/LinkModal';
 import BlockTypes from './lib/BlockTypes';
 import InlineStyles from './lib/InlineStyles';
 import ChangeEvent from './lib/ChangeEvent';
 import { convertContentFrom, convertContentTo } from './lib/convert';
-import { convertAllStyles, convertStyles } from './lib/convertStyles';
-import { convertLinks, getLink } from './lib/convertLinks';
+import { convertStyles } from './lib/modifiers/convertStyles';
+import { convertLinks } from './lib/modifiers/convertLinks';
+import { convertMentions } from './lib/modifiers/convertMentions';
 
 // CSS Module
 import css from './TextEditor.css';
@@ -50,6 +54,12 @@ function setupDecorators(props) {
     component: Link
   });
 
+  // Add mention component support
+  decorators.push({
+    strategy: mentionStrategy,
+    component: props.mentionComponent
+  });
+
   return decorators;
 }
 
@@ -63,11 +73,11 @@ export default class TextEditor extends Component {
     // Setup decorators
     const decorators = new CompositeDecorator(setupDecorators(props));
 
-    // Create State
+    // Create editor state
     let editorState = EditorState.createWithContent(content, decorators);
 
     // Convert styles if neccessary
-    editorState = convertAllStyles(editorState, {
+    editorState = convertStyles(editorState, {
       allowBlock: !props.onlyInline
     });
 
@@ -76,22 +86,28 @@ export default class TextEditor extends Component {
       editorState = convertLinks(editorState);
     }
 
+    // Convert mentions if neccessary
+    editorState = convertMentions(editorState);
+
+    // Create entity state
+    const currentContent = editorState.getCurrentContent();
+    const selectionState = editorState.getSelection();
+    const entityState = EntityState.create(currentContent, selectionState);
+
     // Set state the first time
     this.state = {
-      focus: false,
       editorState,
-      linkState: null
+      entityState
     };
 
     // Binding
+    this.focus = this.focus.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
-    this.focus = this.focus.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
     this.handleLinkClick = this.handleLinkClick.bind(this);
-    this.handleLinkChange = this.handleLinkChange.bind(this);
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
@@ -100,7 +116,6 @@ export default class TextEditor extends Component {
    */
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.editable !== this.props.editable ||
-           nextState.focus !== this.state.focus ||
            nextState.editorState !== this.state.editorState;
   }
 
@@ -122,12 +137,20 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * Refocus the cursor on the editor
+   * @public
+   */
+  focus() {
+    this.refs.editor.focus();
+  }
+
+  /**
    * Keyboard shortcuts
    */
   handleKeyCommand(command) {
     let content;
     let editor;
-    let {editorState} = this.state;
+    let { editorState } = this.state;
 
     const newEditorStatue = RichUtils.handleKeyCommand(editorState, command);
 
@@ -154,12 +177,8 @@ export default class TextEditor extends Component {
    * @param {EditorState} editorState
    */
   handleEditorChange(editorState) {
-    // Get the current selection so we can see if we have active focus
-    const selectionState = editorState.getSelection();
-    const focus = selectionState.getHasFocus();
-
     // Convert styles if neccessary
-    editorState = convertStyles(editorState, selectionState, {
+    editorState = convertStyles(editorState, {
       allowBlock: !this.props.onlyInline
     });
 
@@ -168,9 +187,17 @@ export default class TextEditor extends Component {
       editorState = convertLinks(editorState);
     }
 
+    // Convert mentions if neccessary
+    editorState = convertMentions(editorState);
+
+    // Entity state
+    const currentContent = editorState.getCurrentContent();
+    const selectionState = editorState.getSelection();
+    const entityState = EntityState.create(currentContent, selectionState);
+
     this.setState({
       editorState,
-      focus
+      entityState
     }, () => {
       if (typeof this.props.onChange !== 'function') {
         return;
@@ -181,20 +208,14 @@ export default class TextEditor extends Component {
       const value = convertContentTo(this.state.editorState.getCurrentContent(), this.props.type);
 
       let event = new ChangeEvent(value, {
-        ref: this
+        ref: this,
+        editorState,
+        entityState
       });
 
       // limit change events to only times it changed
       this.props.onChange(event);
     });
-  }
-
-  /**
-   * Refocus the cursor on the editor
-   * @public
-   */
-  focus() {
-    this.refs.editor.focus();
   }
 
   /**
@@ -244,44 +265,49 @@ export default class TextEditor extends Component {
     }
 
     let editorState = this.state.editorState;
-    let selectionState = editorState.getSelection();
-    const currentLink = getLink(editorState, selectionState);
     const currentContent = editorState.getCurrentContent();
+    const entityState = this.state.entityState;
 
-    // If selection is collapsed, find full link
-    if (currentLink && selectionState.isCollapsed()) {
-      selectionState = currentLink.selection;
+    // Find current link, if any
+    const currentLinkEntity = entityState.isEntityType('LINK')
+      ? entityState.getEntity()
+      : null;
+
+    // If selection is collapsed, find selection around full link
+    let selectionState = editorState.getSelection();
+    if (currentLinkEntity && selectionState.isCollapsed()) {
+      selectionState = entityState.getEntitySelection();
     }
 
     let title = 'Add Link';
     let defaultUrl = '';
 
     switch (linkAction) {
-      case 'DELETE':
+    case 'DELETE':
         // Delete a link
-        this.handleEditorChange(RichUtils.toggleLink(editorState, selectionState, null));
-        break;
+      editorState = RichUtils.toggleLink(editorState, selectionState, null);
+      this.handleEditorChange(editorState);
+      break;
 
-      case 'EDIT':
-      default:
+    case 'EDIT':
+    default:
         // Find current link
-        if (currentLink !== null) {
+      if (currentLinkEntity) {
           // Set default to current link href
-          title = 'Edit Link';
-          defaultUrl = currentLink.entity.getData().href;
-        }
+        title = 'Edit Link';
+        defaultUrl = currentLinkEntity.getData().href;
+      }
 
-      case 'ADD':
+    case 'ADD':
         // Ask for link URL
-        ModalActions.open(
-          <LinkModal
-            title={title}
-            href={defaultUrl}
-            onConfirm={this.handleLinkChange}
-          />
-        ).then(() => {
+      ModalActions.open(
+        <LinkModal
+          title={title}
+          href={defaultUrl}
+        />
+        ).then((modalState) => {
           // Check if href was entered
-          const enteredHref = this.state.linkState.href;
+          const enteredHref = modalState.href;
           if (enteredHref.trim() !== '') {
             // Parse link href
             const links = linkify.match(enteredHref);
@@ -292,11 +318,6 @@ export default class TextEditor extends Component {
               created: 'insert'
             });
             const entityKey = contentWithEntity.getLastCreatedEntityKey();
-            // Remove any previous links
-            if (currentLink) {
-              editorState = RichUtils.toggleLink(editorState, selectionState, null);
-            }
-            // Create link
             if (selectionState.isCollapsed()) {
               // No selection, create link
               const contentWithEntityText = Modifier.insertText(currentContent, selectionState, newHref, null, entityKey);
@@ -319,15 +340,6 @@ export default class TextEditor extends Component {
   }
 
   /**
-   * Handle link element property changes
-   */
-  handleLinkChange(state) {
-    this.setState({
-      linkState: state
-    });
-  }
-
-  /**
    * Make it all happen
    * @return    {React}
    */
@@ -336,10 +348,13 @@ export default class TextEditor extends Component {
     const { noStyleButtons, onlyInline } = this.props;
 
     // Grab the state of the editor, part of draft-fs
-    const { editorState } = this.state;
+    const { editorState, entityState } = this.state;
 
     // Get the current selection so we can see if we have active focus
     const selectionState = editorState.getSelection();
+
+    // Determining whether the editor is focused or not
+    const isFocused = selectionState.getHasFocus();
 
     // Get the current style of the selection so we can change the look of the buttons
     const currentInlineStyle = editorState.getCurrentInlineStyle();
@@ -347,15 +362,18 @@ export default class TextEditor extends Component {
     // Determing the current block type
     const currentContent = editorState.getCurrentContent();
     const blockType = currentContent.getBlockForKey(selectionState.getStartKey()).getType();
-    const currentIsLink = getLink(editorState, selectionState) !== null;
+
+    // Determining if a link is selected
+    const currentIsLink = entityState.isEntityType('LINK');
 
     return (
       <div className={classNames(css.container, this.props.className, 'text-editor', {
         'text-editor--editable': this.props.editable,
-        'text-editor--focus': this.state.focus,
+        'text-editor--focus': isFocused,
         [css.editable]: this.props.editable,
-        [css.focus] : this.state.focus
-      })}>
+        [css.focus] : isFocused
+      })}
+      >
         {this.props.editable && !noStyleButtons ?
           <div className={css.controls}>
             {InlineStyles
@@ -437,11 +455,12 @@ TextEditor.propTypes = {
   editable: PropTypes.bool,
   value: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['html', 'text', 'json', 'Immutable']),
+  mentionComponent: PropTypes.elementType,
   convertLinksInline: PropTypes.bool,
   noStyleButtons: PropTypes.bool,
   onlyInline: PropTypes.bool,
   spellCheck: PropTypes.bool,
-  stripPastedStyles: PropTypes.bool,
+  stripPastedStyles: PropTypes.bool
 };
 
 /**
@@ -453,9 +472,10 @@ TextEditor.defaultProps = {
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
   editable: true,
   type: 'html',
+  mentionComponent: Mention,
   convertLinksInline: true,
   noStyleButtons: false,
   onlyInline: false,
   spellCheck: true,
-  stripPastedStyles: true,
+  stripPastedStyles: true
 };

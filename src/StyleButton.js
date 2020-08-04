@@ -3,37 +3,31 @@
  * @author Isaac Suttell <isaac@isaacsuttell.com>
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // CSS Module
 import css from './StyleButton.css';
 
-export default class StyleButton extends Component {
-  /**
-   * Make Render
-   * @return    {React}
-   */
-  render() {
-    return (
-      <div
-        className={classNames(this.props.className, 'text-editor---btn', css.btn, this.props.iconClass, {
-          [css.icon]: typeof this.props.iconClass === 'string',
-          'text-editor--btn-active': this.props.active,
-          [css.active]: this.props.active
-        })}
-        onClick={this.props.onClick}
-        onMouseDown={this.props.onMouseDown}
-        onMouseUp={this.props.onMouseUp}
-        title={this.props.title}
-      >
-        {typeof this.props.iconClass !== 'string' ?
-          this.props.label
-        : null}
-      </div>
-    );
-  }
+export default function StyleButton(props) {
+  return (
+    <div
+      className={classNames(props.className, 'text-editor---btn', css.btn, props.iconClass, {
+        [css.icon]: typeof props.iconClass === 'string',
+        'text-editor--btn-active': props.active,
+        [css.active]: props.active
+      })}
+      onClick={props.onClick}
+      onMouseDown={props.onMouseDown}
+      onMouseUp={props.onMouseUp}
+      title={props.title}
+    >
+      {typeof props.iconClass !== 'string' ?
+        props.label
+      : null}
+    </div>
+  );
 }
 
 /**

@@ -28,6 +28,6 @@ export default function Mention(props) {
 }
 
 Mention.defaultProps = {
-  className: '',
+  className: undefined,
   title: ''
 };

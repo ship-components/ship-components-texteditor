@@ -40,7 +40,7 @@ export default function Link(props) {
 
 Link.defaultProps = {
   target: '_blank',
-  className: '',
-  title: '',
+  className: undefined,
+  title: undefined,
   alt: ''
 };

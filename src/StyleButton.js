@@ -44,3 +44,16 @@ StyleButton.propTypes = {
   onMouseUp: PropTypes.func,
   onMouseDown: PropTypes.func
 };
+
+/**
+ * Type checking
+ * @type    {Object}
+ */
+StyleButton.defaultProps = {
+  iconClass: undefined,
+  className: undefined,
+  title: undefined,
+  onClick: undefined,
+  onMouseUp: undefined,
+  onMouseDown: undefined
+};

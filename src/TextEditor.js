@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, DraftDecorator } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier } from 'draft-js';
 import linkifyIt from 'linkify-it';
 import tlds from 'tlds';
 
@@ -45,7 +45,7 @@ linkify.tlds(tlds);
 /**
  * Helper function to setup any decorators
  * @param    {Object}    props
- * @return   {Array<DraftDecorator>}
+ * @return   {Array<import('draft-js').DraftDecorator>}
  */
 function setupDecorators(props) {
   // Configure custom decorators
@@ -120,6 +120,12 @@ export default class TextEditor extends Component {
     this.forceUpdate = this.forceUpdate.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      suggestions: nextProps.suggestions
+    });
+  }
+
   /**
    * Performance catch
    */
@@ -127,12 +133,6 @@ export default class TextEditor extends Component {
     return nextProps.editable !== this.props.editable ||
            nextProps.suggestions !== this.props.suggestions ||
            nextState.editorState !== this.state.editorState;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      suggestions: nextProps.suggestions
-    });
   }
 
   /**
@@ -488,6 +488,7 @@ TextEditor.propTypes = {
   buttonClass: PropTypes.string,
   editable: PropTypes.bool,
   value: PropTypes.any.isRequired,
+  placeholder: PropTypes.string,
   type: PropTypes.oneOf(['html', 'text', 'json', 'Immutable']),
   suggestions: PropTypes.instanceOf(Immutable.OrderedMap),
   convertLinksInline: PropTypes.bool,
@@ -495,7 +496,9 @@ TextEditor.propTypes = {
   onlyInline: PropTypes.bool,
   spellCheck: PropTypes.bool,
   stripPastedStyles: PropTypes.bool,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  onFocus: PropTypes.func,
+  onBlur: PropTypes.func
 };
 
 /**
@@ -505,7 +508,11 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
   inlineStyles: new Immutable.Set(['BOLD', 'ITALIC', 'UNDERLINE', 'STRIKETHROUGH', 'LINK', 'CODE']),
   blockTypes: new Immutable.Set(['blockquote', 'code-block', 'unordered-list-item', 'ordered-list-item', 'header-one', 'header-two', 'header-three', 'header-four', 'header-five', 'header-six']),
+  tabIndex: undefined,
+  className: undefined,
+  buttonClass: undefined,
   editable: true,
+  placeholder: undefined,
   type: 'html',
   suggestions: undefined,
   convertLinksInline: true,
@@ -513,5 +520,7 @@ TextEditor.defaultProps = {
   onlyInline: false,
   spellCheck: true,
   stripPastedStyles: true,
-  onChange: undefined
+  onChange: undefined,
+  onFocus: undefined,
+  onBlur: undefined
 };

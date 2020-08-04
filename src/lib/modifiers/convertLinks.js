@@ -78,10 +78,10 @@ export function convertLinks(editorState) {
           contentState = Modifier.applyEntity(contentState, matchSelectionState, entityKey);
         } else if (previousLink && previousLinkData.created === 'match') {
           // Check if existing entity has changed
-          const entityKey = entityState.getEntityKey();
+          const previousEntityKey = entityState.getEntityKey();
           if (matchLinks[i].url !== previousLinkData.href) {
             // Modify link entity if matched url has changed
-            contentState = contentState.mergeEntityData(entityKey, {
+            contentState = contentState.mergeEntityData(previousEntityKey, {
               href: matchLinks[i].url
             });
             contentState = Modifier.applyEntity(contentState, matchSelectionState, entityKey);

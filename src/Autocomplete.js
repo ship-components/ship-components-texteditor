@@ -59,7 +59,7 @@ Autocomplete.propTypes = {
 };
 
 Autocomplete.defaultProps = {
-  className: '',
+  className: undefined,
   suggestions: null,
   onClick: null
 };

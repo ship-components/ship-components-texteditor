@@ -24,6 +24,6 @@ export default function MentionSuggestion(props) {
 }
 
 MentionSuggestion.defaultProps = {
-  className: '',
+  className: undefined,
   title: ''
 };

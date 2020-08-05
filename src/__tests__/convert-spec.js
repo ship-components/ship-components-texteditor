@@ -1,11 +1,11 @@
 import {convertContentTo, convertContentFrom} from '../lib/convert';
-import DraftJS, {ContentState} from 'draft-js';
+import {ContentState} from 'draft-js';
 
 describe('convertContentTo', () => {
 
 	let draftJsContent;
 	beforeEach(() => {
-		draftJsContent = DraftJS.ContentState.createFromText('some content');
+		draftJsContent = ContentState.createFromText('some content');
 	});
 
 	it('converts DraftJS content to json', () => {
@@ -19,6 +19,7 @@ describe('convertContentTo', () => {
 		expect(draftJsContent).toBeInstanceOf(ContentState);
 		let content = convertContentTo(draftJsContent, 'html');
 		expect(typeof content).toBe('string');
+		expect(content).toBe('<p>some content</p>');
 	});
 
 	it('converts DraftJS content to string', () => {
@@ -32,7 +33,14 @@ describe('convertContentTo', () => {
 describe('convertContentFrom', () => {
 	let draftJsContent;
 	beforeEach(() => {
-		draftJsContent = DraftJS.ContentState.createFromText('some content');
+		draftJsContent = ContentState.createFromText('some content');
+	});
+
+	it('converts content from text string to DraftJS ContentState', () => {
+		// get a text-string representation of a DraftJS object
+		let textContent = convertContentTo(draftJsContent, 'text');
+		let result = convertContentFrom(textContent, 'text');
+		expect(result).toBeInstanceOf(ContentState);
 	});
 
 	it('converts content from json to DraftJS ContentState', () => {
@@ -55,7 +63,7 @@ describe('convertContentFrom', () => {
 		expect(result.hasText()).toBe(false);
 	});
 
-	it('returns original value when type is not in [\'json\',\'html\']', () => {
+	it('returns original value when type is not in [\'text\',\'json\',\'html\']', () => {
 		let htmlContent = convertContentTo(draftJsContent, 'html');
 		let result = convertContentFrom(htmlContent);
 		expect(typeof result).toBe('string');

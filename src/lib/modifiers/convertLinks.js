@@ -84,7 +84,7 @@ export function convertLinks(editorState) {
             contentState = contentState.mergeEntityData(previousEntityKey, {
               href: matchLinks[i].url
             });
-            contentState = Modifier.applyEntity(contentState, matchSelectionState, entityKey);
+            contentState = Modifier.applyEntity(contentState, matchSelectionState, previousEntityKey);
           }
         }
       }

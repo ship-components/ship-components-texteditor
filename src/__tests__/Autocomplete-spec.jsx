@@ -12,10 +12,16 @@ describe('Autocomplete', () => {
   const Autocomplete = require('../Autocomplete').default;
 
   it('should render without error', () => {
-    const suggestions = new Immutable.OrderedMap({
-      'rick': 'Rick',
-      'morty': 'Morty'
-    });
+    const suggestions = new Immutable.List([
+      {
+        label: 'Rick',
+        value: 'rick'
+      },
+      {
+        label: 'Morty',
+        value: 'morty'
+      }
+    ]);
     let element = React.createElement(Autocomplete, {
       suggestions
     });
@@ -24,10 +30,16 @@ describe('Autocomplete', () => {
   });
 
   it('should match snapshot when suggestions are passed', () => {
-    const suggestions = new Immutable.OrderedMap({
-      'rick': 'Rick',
-      'morty': 'Morty'
-    });
+    const suggestions = new Immutable.List([
+      {
+        label: 'Rick',
+        value: 'rick'
+      },
+      {
+        label: 'Morty',
+        value: 'morty'
+      }
+    ]);
     const wrapper = mount(
       <Autocomplete
         suggestions={suggestions}
@@ -39,7 +51,7 @@ describe('Autocomplete', () => {
   });
 
   it('should match snapshot when an empty list of suggestions are passed', () => {
-    const suggestions = new Immutable.OrderedMap();
+    const suggestions = new Immutable.List();
     const wrapper = mount(
       <Autocomplete
         suggestions={suggestions}

@@ -10,51 +10,154 @@ import classNames from 'classnames';
 // CSS Module
 import css from './Autocomplete.css';
 
-export default function Autocomplete(props) {
-  // get props
-  const {
-    className,
-    suggestions,
-    onClick
-  } = props;
+export class AutocompleteSuggestion extends Immutable.Record({
+  label: undefined,
+  value: undefined
+}) { }
 
-  // get suggestion props
-  const suggestionsProps = {
-    className: classNames(css.wrap, className)
-  };
+export default class Autocomplete extends React.PureComponent {
+  constructor(props) {
+    super(props);
 
-  // hide if rows are not a list
-  if (!suggestions) {
-    return null;
+    this.state = {
+      selectedIndex: 0
+    };
+
+    this.moveSelection = this.moveSelection.bind(this);
+    this.clickSelection = this.clickSelection.bind(this);
+    this.handleSelection = this.handleSelection.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  return (
-    <div {...suggestionsProps}>
-      {suggestions.size === 0 ? (
-        <div className={css.empty}>
-          No suggestions available.
-        </div>
-      ) : (
-        <div className={css.list}>
-          {suggestions.entrySeq().map(([value, label]) => (
-            <div
-              key={value}
-              className={css.listItem}
-              onClick={() => typeof onClick === 'function' && onClick(value)}
-            >
-              {label}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  componentWillReceiveProps(nextProps) {
+    if (!Immutable.is(nextProps.suggestions, this.props.suggestions)) {
+      this.setState({
+        selectedIndex: 0
+      });
+    }
+  }
+
+  /**
+   * Moves the selected suggestion to the previous or next suggestion
+   *
+   * @param {String} direction Direction can be "up" or "down"
+   * @param {Event} event
+   */
+  moveSelection(direction, event) {
+    if (!this.props.suggestions) {
+      return;
+    }
+    this.setState((prevState) => {
+      let { selectedIndex } = prevState;
+      if (direction === 'up') {
+        if (selectedIndex - 1 < 0) {
+          selectedIndex = this.props.suggestions.size - 1;
+        } else {
+          selectedIndex = selectedIndex - 1;
+        }
+      } else if (selectedIndex + 1 >= this.props.suggestions.size) {
+        selectedIndex = 0;
+      } else {
+        selectedIndex = selectedIndex + 1;
+      }
+      return {
+        selectedIndex
+      };
+    });
+  }
+
+  /**
+   * Triggers a click on the currently selected suggestion
+   *
+   * @param {Event} event
+   */
+  clickSelection(event) {
+    const { suggestions } = this.props;
+    const { selectedIndex } = this.state;
+    if (!suggestions) {
+      return;
+    }
+    return this.handleClick(suggestions.get(selectedIndex), event);
+  }
+
+  /**
+   * Handles when a suggestion was selected on mouse hover
+   *
+   * @param {Number} index
+   * @param {Event} event
+   */
+  handleSelection(index, event) {
+    this.setState({
+      selectedIndex: index
+    });
+  }
+
+  /**
+   * Handles when a suggestion was clicked
+   *
+   * @param {AutocompleteSuggestion} suggestion
+   * @param {Event} event
+   */
+  handleClick(suggestion, event) {
+    if (typeof this.props.onClick === 'function') {
+      this.props.onClick(suggestion, event);
+    }
+  }
+
+  render() {
+    // get props
+    const {
+      className,
+      suggestions
+    } = this.props;
+
+    // get suggestion props
+    const suggestionsProps = {
+      className: classNames(css.wrap, className)
+    };
+
+    // get state
+    const {
+      selectedIndex
+    } = this.state;
+
+    // hide if rows are not a list
+    if (!suggestions) {
+      return null;
+    }
+
+    return (
+      <div {...suggestionsProps}>
+        {suggestions.size === 0 ? (
+          <div className={css.empty}>
+            No suggestions available.
+          </div>
+        ) : (
+          <div className={css.list}>
+            {suggestions.entrySeq().map(([index, suggestion]) => (
+              <div
+                key={index}
+                className={classNames(css.listItem, {
+                  [css.active]: selectedIndex === index
+                })}
+                title={suggestion.title}
+                onMouseOver={e => this.handleSelection(index, e)}
+                onClick={e => this.handleClick(suggestion, e)}
+              >
+                {suggestion.label}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 }
 
 
 Autocomplete.propTypes = {
   className: PropTypes.string,
-  suggestions: PropTypes.instanceOf(Immutable.OrderedMap),
+  suggestions: PropTypes.instanceOf(Immutable.List),
   onClick: PropTypes.func
 };
 

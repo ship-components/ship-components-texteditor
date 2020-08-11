@@ -1,4 +1,5 @@
 import { ContentBlock, ContentState } from 'draft-js';
+import Entities from '../Entities';
 
 /**
  * Parse text to find link entities and return them in the callback.
@@ -14,7 +15,7 @@ export default function(contentBlock, callback, contentState) {
     const entityKey = character.getEntity();
     return (
       entityKey !== null &&
-      contentState.getEntity(entityKey).getType() === 'LINK'
+      contentState.getEntity(entityKey).getType() === Entities.Link
     );
   }, callback);
 }

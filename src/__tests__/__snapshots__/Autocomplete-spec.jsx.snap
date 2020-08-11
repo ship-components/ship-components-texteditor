@@ -4,7 +4,7 @@ exports[`Autocomplete should match snapshot when an empty list of suggestions ar
 <Autocomplete
   className="real-classy-stuff"
   onClick={null}
-  suggestions={Object {}}
+  suggestions={Array []}
 >
   <div
     className="real-classy-stuff"
@@ -29,10 +29,16 @@ exports[`Autocomplete should match snapshot when suggestions are passed 1`] = `
   className="real-classy-stuff"
   onClick={null}
   suggestions={
-    Object {
-      "morty": "Morty",
-      "rick": "Rick",
-    }
+    Array [
+      Object {
+        "label": "Rick",
+        "value": "rick",
+      },
+      Object {
+        "label": "Morty",
+        "value": "morty",
+      },
+    ]
   }
 >
   <div
@@ -40,14 +46,18 @@ exports[`Autocomplete should match snapshot when suggestions are passed 1`] = `
   >
     <div>
       <div
-        key="rick"
+        className="undefined"
+        key="0"
         onClick={[Function]}
+        onMouseOver={[Function]}
       >
         Rick
       </div>
       <div
-        key="morty"
+        className=""
+        key="1"
         onClick={[Function]}
+        onMouseOver={[Function]}
       >
         Morty
       </div>

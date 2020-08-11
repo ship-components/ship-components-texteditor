@@ -1,7 +1,8 @@
-import { EditorState, RichUtils, SelectionState, EntityInstance, ContentBlock, Modifier } from 'draft-js';
+import { EditorState, SelectionState, Modifier } from 'draft-js';
 import linkifyIt from 'linkify-it';
 import tlds from 'tlds';
 import EntityState from '../EntityState';
+import Entities from '../Entities';
 
 // Setup Linkify
 const linkify = linkifyIt();
@@ -30,7 +31,7 @@ export function convertLinks(editorState) {
       // Find all existing match links
       if (character.getEntity() !== null) {
         const entity = contentState.getEntity(character.getEntity());
-        if (entity.getType() === 'LINK' && entity.getData().created === 'match') {
+        if (entity.getType() === Entities.Link && entity.getData().created === 'match') {
           return true;
         }
       }
@@ -65,11 +66,11 @@ export function convertLinks(editorState) {
         });
         // Check if there are any existing links
         const entityState = EntityState.create(contentState, matchSelectionState);
-        const previousLink = entityState.isEntityType('LINK') ? entityState.getEntity() : null;
+        const previousLink = entityState.isEntityType(Entities.Link) ? entityState.getEntity() : null;
         const previousLinkData = previousLink ? previousLink.getData() : null;
         if (!previousLink) {
           // Create link entity
-          contentState = contentState.createEntity('LINK', 'MUTABLE', {
+          contentState = contentState.createEntity(Entities.Link, 'MUTABLE', {
             href: matchLinks[i].url,
             created: 'match'
           });

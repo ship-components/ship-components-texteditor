@@ -1,5 +1,7 @@
 import {ContentState, convertToRaw, convertFromRaw} from 'draft-js';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
+import Entities from './Entities';
+import { createElement } from 'react';
 
 /**
  * Removes the HTML tags from Strings
@@ -32,7 +34,7 @@ export function convertContentFrom(value, type) {
     return convertFromHTML({
       htmlToEntity: (nodeName, node, createEntity) => {
         if (nodeName === 'a') {
-          return createEntity('LINK', 'MUTABLE', { href: node.href })
+          return createEntity(Entities.Link, 'MUTABLE', { href: node.href })
         }
       },
     })(value);
@@ -54,8 +56,14 @@ export function convertContentTo(content, type) {
   } else if (type === 'html') {
     return convertToHTML({
       entityToHTML: (entity, text) => {
-        if (entity.type === 'LINK') {
+        if (entity.type === Entities.Link) {
           return <a href={entity.data.href}>{text}</a>;
+        }
+        if (entity.type === Entities.Mention) {
+          return entity.data.text;
+        }
+        if (entity.type === Entities.Hashtag) {
+          return entity.data.text;
         }
         return text;
       },

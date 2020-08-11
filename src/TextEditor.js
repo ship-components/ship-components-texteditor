@@ -8,32 +8,31 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Immutable from 'immutable';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, getDefaultKeyBinding } from 'draft-js';
 import linkifyIt from 'linkify-it';
 import tlds from 'tlds';
 
 // Components & Helpers
+import { ModalActions } from 'ship-components-dialog';
 import StyleButton from './StyleButton';
 import Autocomplete from './Autocomplete';
 import Link from './Link/Link';
 import LinkModal from './Link/LinkModal';
 import Mention from './Mention/Mention';
-import MentionSuggestion from './Mention/MentionSuggestion';
-import { ModalActions } from 'ship-components-dialog';
 
 // Lib
 import EntityState from './lib/EntityState';
 import linkStrategy from './lib/decorators/linkStrategy';
 import mentionStrategy from './lib/decorators/mentionStrategy';
-import mentionSuggestionStrategy from './lib/decorators/mentionSuggestionStrategy';
 import LinkTypes from './lib/LinkTypes';
 import BlockTypes from './lib/BlockTypes';
 import InlineStyles from './lib/InlineStyles';
+import Entities from './lib/Entities';
 import ChangeEvent from './lib/ChangeEvent';
 import { convertContentFrom, convertContentTo } from './lib/convert';
 import { convertStyles } from './lib/modifiers/convertStyles';
 import { convertLinks } from './lib/modifiers/convertLinks';
-import { convertMentions } from './lib/modifiers/convertMentions';
+import { convertEntities } from './lib/modifiers/convertEntities';
 
 // CSS Module
 import css from './TextEditor.css';
@@ -58,10 +57,6 @@ function setupDecorators(props) {
   });
 
   // Add mention component support
-  decorators.push({
-    strategy: mentionSuggestionStrategy,
-    component: MentionSuggestion
-  });
   decorators.push({
     strategy: mentionStrategy,
     component: Mention
@@ -89,12 +84,12 @@ export default class TextEditor extends Component {
     });
 
     // Convert links if neccessary
-    if (this.props.convertLinksInline) {
+    if (props.convertLinksInline) {
       editorState = convertLinks(editorState);
     }
 
-    // Convert mentions if neccessary
-    editorState = convertMentions(editorState);
+    // Convert other entities
+    editorState = convertEntities(editorState, props.convertEntities);
 
     // Create entity state
     const currentContent = editorState.getCurrentContent();
@@ -104,26 +99,20 @@ export default class TextEditor extends Component {
     // Set state the first time
     this.state = {
       editorState,
-      entityState,
-      suggestions: props.suggestions
+      entityState
     };
 
     // Binding
+    this.forceUpdate = this.forceUpdate.bind(this);
     this.focus = this.focus.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
+    this.handleKeyBinding = this.handleKeyBinding.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleInlineStyleClick = this.handleInlineStyleClick.bind(this);
     this.handleBlockStyleClick = this.handleBlockStyleClick.bind(this);
     this.handleLinkClick = this.handleLinkClick.bind(this);
     this.handleSuggestionClick = this.handleSuggestionClick.bind(this);
-    this.forceUpdate = this.forceUpdate.bind(this);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      suggestions: nextProps.suggestions
-    });
   }
 
   /**
@@ -161,34 +150,6 @@ export default class TextEditor extends Component {
   }
 
   /**
-   * Keyboard shortcuts
-   */
-  handleKeyCommand(command) {
-    let content;
-    let editor;
-    let { editorState } = this.state;
-
-    const newEditorStatue = RichUtils.handleKeyCommand(editorState, command);
-
-    // Split the selected block into two blocks on 'Enter' command.
-    // ONLY ON HTML TYPE
-    // @see https://draftjs.org/docs/api-reference-modifier.html#splitblock
-    if (command === 'split-block' && this.props.type === 'html') {
-      content = Modifier
-        .splitBlock(editorState.getCurrentContent(), editorState.getSelection());
-      editor = EditorState.push(editorState, content, 'split-block');
-
-      this.handleEditorChange(editor);
-      return 'handled';
-    } else if (newEditorStatue) {
-      this.handleEditorChange(newEditorStatue);
-      return 'handled';
-    }
-
-    return 'not-handled';
-  }
-
-  /**
    * Text editor change
    * @param {EditorState} editorState
    */
@@ -203,8 +164,8 @@ export default class TextEditor extends Component {
       editorState = convertLinks(editorState);
     }
 
-    // Convert mentions if neccessary
-    editorState = convertMentions(editorState);
+    // Convert other entities
+    editorState = convertEntities(editorState, this.props.convertEntities);
 
     // Entity state
     const currentContent = editorState.getCurrentContent();
@@ -215,27 +176,87 @@ export default class TextEditor extends Component {
       editorState,
       entityState
     }, () => {
-      if (typeof this.props.onChange !== 'function') {
-        return;
+      if (typeof this.props.onChange === 'function') {
+        // Convert from draft-fs format so it's seamless with the rest of the application.
+        const value = convertContentTo(this.state.editorState.getCurrentContent(), this.props.type);
+        const event = new ChangeEvent(value, {
+          ref: this
+        });
+        this.props.onChange(event);
       }
-
-      // Convert from draft-fs format to html so its seamless with the rest of
-      // the application. Should remove this eventually
-      const value = convertContentTo(this.state.editorState.getCurrentContent(), this.props.type);
-
-      let event = new ChangeEvent(value, {
-        ref: this,
-        editorState,
-        entityState
-      });
-
-      // limit change events to only times it changed
-      this.props.onChange(event);
+      if (typeof this.props.onEntityChange === 'function') {
+        // When a suggestable entity is selected (e.g. mention)
+        const entity = entityState.getEntity();
+        const value = entity ? entity.getData().text : null;
+        const event = new ChangeEvent(value, {
+          ref: this,
+          entity
+        });
+        this.props.onEntityChange(event);
+      }
     });
   }
 
   /**
+   * Keyboard events
+   * @param {Event} event
+   * @return {String}
+   */
+  handleKeyBinding(event) {
+    if (typeof this.props.onKeyDown === 'function') {
+      this.props.onKeyDown(event);
+    }
+    if (this.props.suggestions) {
+      switch (event.keyCode) {
+      case 38:
+          // up arrow
+        this.refs.autocomplete.moveSelection('up', event);
+        return event.preventDefault();
+      case 40:
+          // down arrow
+        this.refs.autocomplete.moveSelection('down', event);
+        return event.preventDefault();
+      case 13:
+          // enter
+        this.refs.autocomplete.clickSelection(event);
+        return event.preventDefault();
+      }
+    }
+    return getDefaultKeyBinding(event);
+  }
+
+  /**
+   * Keyboard shortcuts
+   * @param {String} command
+   * @return {String}
+   */
+  handleKeyCommand(command) {
+    let content;
+    let editor;
+    let { editorState } = this.state;
+
+    const newEditorStatue = RichUtils.handleKeyCommand(editorState, command);
+
+    // Split the selected block into two blocks on 'Enter' command.
+    // ONLY ON HTML TYPE
+    // @see https://draftjs.org/docs/api-reference-modifier.html#splitblock
+    if (command === 'split-block' && this.props.type === 'html') {
+      content = Modifier.splitBlock(editorState.getCurrentContent(), editorState.getSelection());
+      editor = EditorState.push(editorState, content, 'split-block');
+
+      this.handleEditorChange(editor);
+      return 'handled';
+    } else if (newEditorStatue) {
+      this.handleEditorChange(newEditorStatue);
+      return 'handled';
+    }
+
+    return 'not-handled';
+  }
+
+  /**
    * MouseDown on a button
+   * @param {Event} event
    */
   handleMouseDown(event) {
     // Prevent losing focus of editor
@@ -244,6 +265,8 @@ export default class TextEditor extends Component {
 
   /**
    * Toggle an inline style
+   * @param {String} inlineStyle
+   * @param {Event} event
    */
   handleInlineStyleClick(inlineStyle, event) {
     if (!this.props.editable) {
@@ -258,7 +281,9 @@ export default class TextEditor extends Component {
   }
 
   /**
-   * Toggle an inline style
+   * Toggle an block style
+   * @param {String} blockStyle
+   * @param {Event} event
    */
   handleBlockStyleClick(blockStyle, event) {
     if (!this.props.editable) {
@@ -274,6 +299,8 @@ export default class TextEditor extends Component {
 
   /**
    * Toggle a link element
+   * @param {String} linkAction
+   * @param {Event} event
    */
   handleLinkClick(linkAction, event) {
     if (!this.props.editable) {
@@ -285,7 +312,7 @@ export default class TextEditor extends Component {
     const entityState = this.state.entityState;
 
     // Find current link, if any
-    const currentLinkEntity = entityState.isEntityType('LINK')
+    const currentLinkEntity = entityState.isEntityType(Entities.Link)
       ? entityState.getEntity()
       : null;
 
@@ -329,7 +356,7 @@ export default class TextEditor extends Component {
             const links = linkify.match(enteredHref);
             const newHref = (links !== null) ? links[0].url : enteredHref;
             // Set link entity
-            const contentWithEntity = currentContent.createEntity('LINK', 'MUTABLE', {
+            const contentWithEntity = currentContent.createEntity(Entities.Link, 'MUTABLE', {
               href: newHref,
               created: 'insert'
             });
@@ -357,28 +384,34 @@ export default class TextEditor extends Component {
 
   /**
    * Click handler for an autocomplete suggestion
+   * @param {import('./lib/Entities').AutocompleteSuggestion} suggestion
    */
   handleSuggestionClick(suggestion) {
     let editorState = this.state.editorState;
     const currentContent = this.state.editorState.getCurrentContent();
     const entitySelection = this.state.entityState.getEntitySelection();
     // Add suggestion
-    const contentWithEntityText = Modifier.replaceText(currentContent, entitySelection, `${suggestion} `);
+    const contentWithEntityText = Modifier.replaceText(currentContent, entitySelection, suggestion.value);
     editorState = EditorState.push(editorState, contentWithEntityText, 'create-entity');
+    // Reset selection to after the entity
+    editorState = EditorState.forceSelection(editorState, entitySelection.merge({
+      anchorOffset: entitySelection.getStartOffset() + suggestion.value.length + 1,
+      focusOffset: entitySelection.getStartOffset() + suggestion.value.length + 1
+    }));
     // Update editor with changes
     this.handleEditorChange(editorState);
   }
 
   /**
    * Make it all happen
-   * @return    {React}
+   * @return {React.ReactNode}
    */
   render() {
     // Grab the props
-    const { noStyleButtons, onlyInline } = this.props;
+    const { noStyleButtons, onlyInline, editable, suggestions } = this.props;
 
     // Grab the state of the editor, part of draft-fs
-    const { editorState, entityState, suggestions } = this.state;
+    const { editorState, entityState } = this.state;
 
     // Get the current selection so we can see if we have active focus
     const selectionState = editorState.getSelection();
@@ -394,17 +427,17 @@ export default class TextEditor extends Component {
     const blockType = currentContent.getBlockForKey(selectionState.getStartKey()).getType();
 
     // Determining if a link is selected
-    const currentIsLink = entityState.isEntityType('LINK');
+    const currentIsLink = entityState.isEntityType(Entities.Link);
 
     return (
       <div className={classNames(css.container, this.props.className, 'text-editor', {
-        'text-editor--editable': this.props.editable,
+        'text-editor--editable': editable,
         'text-editor--focus': isFocused,
-        [css.editable]: this.props.editable,
+        [css.editable]: editable,
         [css.focus] : isFocused
       })}
       >
-        {this.props.editable && !noStyleButtons ?
+        {editable && !noStyleButtons ?
           <div className={css.controls}>
             {InlineStyles
               // Allow user to select styles to show
@@ -422,7 +455,7 @@ export default class TextEditor extends Component {
               )}
             {LinkTypes
               // Allow user to create links
-              .filter(type => this.props.inlineStyles.has('LINK') && type.whenLink === currentIsLink)
+              .filter(type => this.props.inlineStyles.has(Entities.Link) && type.whenLink === currentIsLink)
               .map(type =>
                 <StyleButton
                   className={this.props.buttonClass}
@@ -456,18 +489,22 @@ export default class TextEditor extends Component {
           <Editor
             ref='editor'
             editorState={editorState}
+            keyBindingFn={this.handleKeyBinding}
             handleKeyCommand={this.handleKeyCommand}
+            onUpArrow={this.handleKeyBinding}
+            onDownArrow={this.handleKeyBinding}
             onBlur={this.props.onBlur}
             onChange={this.handleEditorChange}
             onFocus={this.props.onFocus}
-            placeholder={this.props.editable ? this.props.placeholder : void 0}
-            readOnly={!this.props.editable}
+            placeholder={editable ? this.props.placeholder : void 0}
+            readOnly={!editable}
             stripPastedStyles={this.props.stripPastedStyles}
             spellCheck={this.props.spellCheck}
             tabIndex={this.props.tabIndex}
           />
         </div>
         <Autocomplete
+          ref='autocomplete'
           suggestions={suggestions}
           onClick={this.handleSuggestionClick}
         />
@@ -490,15 +527,18 @@ TextEditor.propTypes = {
   value: PropTypes.any.isRequired,
   placeholder: PropTypes.string,
   type: PropTypes.oneOf(['html', 'text', 'json', 'Immutable']),
-  suggestions: PropTypes.instanceOf(Immutable.OrderedMap),
+  suggestions: PropTypes.instanceOf(Immutable.List),
   convertLinksInline: PropTypes.bool,
+  convertEntities: PropTypes.instanceOf(Immutable.List),
   noStyleButtons: PropTypes.bool,
   onlyInline: PropTypes.bool,
   spellCheck: PropTypes.bool,
   stripPastedStyles: PropTypes.bool,
   onChange: PropTypes.func,
+  onKeyDown: PropTypes.func,
   onFocus: PropTypes.func,
-  onBlur: PropTypes.func
+  onBlur: PropTypes.func,
+  onEntityChange: PropTypes.func
 };
 
 /**
@@ -516,11 +556,14 @@ TextEditor.defaultProps = {
   type: 'html',
   suggestions: undefined,
   convertLinksInline: true,
+  convertEntities: undefined,
   noStyleButtons: false,
   onlyInline: false,
   spellCheck: true,
   stripPastedStyles: true,
   onChange: undefined,
+  onKeyDown: undefined,
   onFocus: undefined,
-  onBlur: undefined
+  onBlur: undefined,
+  onEntityChange: undefined
 };

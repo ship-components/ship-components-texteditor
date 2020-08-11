@@ -14,17 +14,18 @@
 
 .list {
   margin: 0;
-  max-width: 100vw;
-  min-width: 140px;
+  max-height: 240px;
+  width: 100%;
+  overflow: auto;
 }
 
 .listItem {
+  cursor: pointer;
   padding: 4px 6px;
 
-  &:hover {
+  &.active {
     background: $primary-color;
     color: $primary-background-color;
-    cursor: pointer;
   }
 }
 

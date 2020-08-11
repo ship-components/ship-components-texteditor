@@ -3,8 +3,9 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
-export default function MentionSuggestion(props) {
+export default function Suggestion(props) {
   // get props
   const {
     className,
@@ -23,7 +24,14 @@ export default function MentionSuggestion(props) {
   );
 }
 
-MentionSuggestion.defaultProps = {
+Suggestion.propTypes = {
+  className: PropTypes.string,
+  title: PropTypes.string,
+  children: PropTypes.node
+};
+
+Suggestion.defaultProps = {
   className: undefined,
-  title: ''
+  title: '',
+  children: undefined
 };

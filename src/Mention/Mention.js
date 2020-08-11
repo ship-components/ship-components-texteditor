@@ -11,6 +11,9 @@ import css from './Mention.css';
 export default function Mention(props) {
   // get props
   const {
+    contentState,
+    entityKey,
+
     className,
     title,
     children
@@ -21,6 +24,12 @@ export default function Mention(props) {
     className: classNames(css.mention, className),
     title
   };
+
+  // find entity
+  if (entityKey) {
+    // extract entity title
+    spanProps.title = contentState.getEntity(entityKey).getData().title;
+  }
 
   return (
     <span {...spanProps}>{children}</span>

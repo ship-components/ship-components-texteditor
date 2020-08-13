@@ -7,7 +7,7 @@ exports[`Autocomplete should match snapshot when an empty list of suggestions ar
   suggestions={Array []}
 >
   <div
-    className="real-classy-stuff"
+    className="text-editor--autocomplete real-classy-stuff"
   >
     <div>
       No suggestions available.
@@ -42,7 +42,7 @@ exports[`Autocomplete should match snapshot when suggestions are passed 1`] = `
   }
 >
   <div
-    className="real-classy-stuff"
+    className="text-editor--autocomplete real-classy-stuff"
   >
     <div>
       <div

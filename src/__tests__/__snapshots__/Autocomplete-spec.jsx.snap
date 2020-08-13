@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Autocomplete should match snapshot when an empty list of suggestions are passed 1`] = `
+<Autocomplete
+  className="real-classy-stuff"
+  onClick={null}
+  suggestions={Array []}
+>
+  <div
+    className="text-editor--autocomplete real-classy-stuff"
+  >
+    <div>
+      No suggestions available.
+    </div>
+  </div>
+</Autocomplete>
+`;
+
+exports[`Autocomplete should match snapshot when suggestions are not passed 1`] = `
+<Autocomplete
+  className="real-classy-stuff"
+  onClick={null}
+  suggestions={null}
+/>
+`;
+
+exports[`Autocomplete should match snapshot when suggestions are passed 1`] = `
+<Autocomplete
+  className="real-classy-stuff"
+  onClick={null}
+  suggestions={
+    Array [
+      Object {
+        "label": "Rick",
+        "value": "rick",
+      },
+      Object {
+        "label": "Morty",
+        "value": "morty",
+      },
+    ]
+  }
+>
+  <div
+    className="text-editor--autocomplete real-classy-stuff"
+  >
+    <div>
+      <div
+        className="undefined"
+        key="0"
+        onClick={[Function]}
+        onMouseOver={[Function]}
+      >
+        Rick
+      </div>
+      <div
+        className=""
+        key="1"
+        onClick={[Function]}
+        onMouseOver={[Function]}
+      >
+        Morty
+      </div>
+    </div>
+  </div>
+</Autocomplete>
+`;

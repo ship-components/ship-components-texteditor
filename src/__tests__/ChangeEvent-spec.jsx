@@ -16,6 +16,7 @@ describe('ChangeEvent', () => {
 
     expect(event).toBeDefined();
     expect(event.value).toEqual('testing value');
+    expect(event.target.value).toEqual('testing value');
   });
 
   it('should return the current time', () => {

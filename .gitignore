@@ -28,4 +28,7 @@ node_modules
 package-lock.json
 *.docker*
 
+# Editor
+.vscode
+
 dist/

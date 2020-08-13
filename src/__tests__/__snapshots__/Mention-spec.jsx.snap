@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Mention should match snapshot 1`] = `
+<Mention
+  className="real-classy-stuff"
+  title="Morty"
+>
+  <span
+    className="real-classy-stuff"
+    title="Morty"
+  >
+    @morty
+  </span>
+</Mention>
+`;

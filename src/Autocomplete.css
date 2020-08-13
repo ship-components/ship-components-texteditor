@@ -1,0 +1,31 @@
+.wrap {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  left: 0;
+  max-height: 240px;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.list {
+  margin: 0;
+}
+
+.listItem {
+  cursor: pointer;
+  padding: 4px 6px;
+
+  &.active {
+    background: $primary-color;
+    color: $primary-background-color;
+  }
+}
+
+.empty {
+  color: #ccc;
+  font-style: italic;
+  padding: 4px 6px;
+}

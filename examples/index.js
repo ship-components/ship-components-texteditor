@@ -6,6 +6,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Modals from 'ship-components-dialog/src/Modals';
 import TextEditor from '../src/TextEditor';
+import { convertEntities, entities } from './entities';
 
 class Examples extends React.Component {
 
@@ -13,16 +14,36 @@ class Examples extends React.Component {
     super(props);
 
     this.state ={
-      basic: '<h1>Titles</h1><p>Here is <b>some </b><u><b>sample</b></u> <i><b>text</b></i> With links to google.com</p><blockquote>"And some quotes too"</blockquote><ul><li>Event Bullets!</li></ul>',
-      json: ''
+      basic: 'This is a test',
+      json: '',
+      suggestions: null
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleEntityChange = this.handleEntityChange.bind(this);
   }
 
   handleChange(key, event) {
+    // When any changes are triggered by the editor
     this.setState({
       [key]: event.target.value
+    });
+  }
+
+  handleEntityChange(event) {
+    // When an marked entity is selected/deselected
+    let suggestions = null;
+    // Show suggestions list when dealing with a suggestion entity
+    if (event.entity && event.entity.type === 'SUGGESTION') {
+      suggestions = entities.filter(item =>
+        item.value.toLowerCase().indexOf(event.value.toLowerCase()) !== -1
+      ).map(entity => ({
+        label: entity.label,
+        value: `${entity.value} `
+      }));
+    }
+    this.setState({
+      suggestions
     });
   }
 
@@ -109,6 +130,29 @@ class Examples extends React.Component {
           />
           <div>
             <h3>Value</h3>
+            <pre>{this.state.basic}</pre>
+          </div>
+        </div>
+        <div className='example-group'>
+          <h2>Entity support for suggestions, mentions and hashtags (HTML)</h2>
+          <TextEditor
+            editable
+            ref='basic'
+            type='html'
+            onChange={this.handleChange.bind(this, 'basic')}
+            onEntityChange={this.handleEntityChange}
+            convertEntities={convertEntities}
+            value={this.state.basic}
+            placeholder='Basic editor...'
+            suggestions={this.state.suggestions}
+          />
+          <button
+            onClick={this.handleReset.bind(this, 'basic')}
+          >
+            Reset
+          </button>
+          <div>
+            <h3>Result</h3>
             <pre>{this.state.basic}</pre>
           </div>
         </div>

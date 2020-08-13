@@ -8,7 +8,7 @@ import {mount} from 'enzyme';
 import toJson from 'enzyme-to-json';
 
 describe('Link', () => {
-  const Link = require('../Link').default;
+  const Link = require('../Link/Link').default;
 
   it('should render without error', () => {
     let element = React.createElement(

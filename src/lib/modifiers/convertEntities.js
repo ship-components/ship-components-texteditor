@@ -51,19 +51,17 @@ export function convertEntities(editorState, entityDecorators = Immutable.List()
           const entityKey = contentState.getLastCreatedEntityKey();
           contentState = Modifier.replaceText(contentState, matchedSelectionState, result.text, null, entityKey);
           // Reset block text with replaced text block
-          blockText = currentContent.getBlockForKey(blockKey).getText();
-          // Reset selection to after the entity, if selection is inside
-          // const isSelected = selectionState.hasEdgeWithin(
-          //   matchedSelectionState.getStartKey(),
-          //   matchedSelectionState.getStartOffset(),
-          //   matchedSelectionState.getStartOffset() + result.label.length
-          // );
-          // if (isSelected) {
-          //   selectionState = selectionState.merge({
-          //     anchorOffset: matchedSelectionState.getStartOffset() + result.label.length + 1,
-          //     focusOffset: matchedSelectionState.getStartOffset() + result.label.length + 1
-          //   });
-          // }
+          blockText = contentState.getBlockForKey(blockKey).getText();
+          // Reset selection to after the entity, if selection is after replaced content
+          const selectionInBlock = selectionState.getStartKey() === block.getKey();
+          const selectionAfterEntity = matchedSelectionState.getAnchorOffset() < selectionState.getAnchorOffset();
+          if (selectionInBlock && selectionAfterEntity) {
+            const selectionOffset = result.text.length - match[0].length;
+            selectionState = selectionState.merge({
+              anchorOffset: selectionState.anchorOffset + selectionOffset,
+              focusOffset: selectionState.focusOffset + selectionOffset
+            });
+          }
         }
       }
       return contentState;

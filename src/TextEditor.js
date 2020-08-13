@@ -150,6 +150,14 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * Blurs the cursor on the editor
+   * @public
+   */
+  blur() {
+    this.refs.editor.blur();
+  }
+
+  /**
    * Text editor change
    * @param {EditorState} editorState
    */
@@ -395,9 +403,10 @@ export default class TextEditor extends Component {
     editorState = EditorState.push(editorState, contentWithEntityText, 'create-entity');
     // Reset selection to after the entity
     editorState = EditorState.forceSelection(editorState, entitySelection.merge({
-      anchorOffset: entitySelection.getStartOffset() + suggestion.value.length + 1,
-      focusOffset: entitySelection.getStartOffset() + suggestion.value.length + 1
+      anchorOffset: entitySelection.getStartOffset() + suggestion.value.length,
+      focusOffset: entitySelection.getStartOffset() + suggestion.value.length
     }));
+    this.focus();
     // Update editor with changes
     this.handleEditorChange(editorState);
   }
@@ -484,7 +493,7 @@ export default class TextEditor extends Component {
         : null}
         <div
           onClick={this.focus}
-          className={css.editor}
+          className={classNames(css.editor, 'text-editor--editor')}
         >
           <Editor
             ref='editor'

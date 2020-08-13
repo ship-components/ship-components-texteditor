@@ -48,21 +48,34 @@ export default class Autocomplete extends React.PureComponent {
       return;
     }
     this.setState((prevState) => {
+      // Set new selected index
       let { selectedIndex } = prevState;
-      if (direction === 'up') {
-        if (selectedIndex - 1 < 0) {
-          selectedIndex = this.props.suggestions.size - 1;
-        } else {
-          selectedIndex = selectedIndex - 1;
-        }
-      } else if (selectedIndex + 1 >= this.props.suggestions.size) {
-        selectedIndex = 0;
-      } else {
-        selectedIndex = selectedIndex + 1;
+      switch (direction) {
+        case 'up':
+          if (selectedIndex - 1 < 0) {
+            selectedIndex = this.props.suggestions.size - 1;
+          } else {
+            selectedIndex = selectedIndex - 1;
+          }
+          break;
+        case 'down':
+          if (selectedIndex + 1 >= this.props.suggestions.size) {
+            selectedIndex = 0;
+          } else {
+            selectedIndex = selectedIndex + 1;
+          }
+          break;
       }
       return {
         selectedIndex
       };
+    }, () => {
+      // Scroll to selected element
+      if (this.selectedRef) {
+        this.selectedRef.scrollIntoView({
+          block: 'nearest'
+        });
+      }
     });
   }
 
@@ -113,7 +126,7 @@ export default class Autocomplete extends React.PureComponent {
 
     // get suggestion props
     const suggestionsProps = {
-      className: classNames(css.wrap, className)
+      className: classNames(css.wrap, 'text-editor--autocomplete', className)
     };
 
     // get state
@@ -137,6 +150,11 @@ export default class Autocomplete extends React.PureComponent {
             {suggestions.entrySeq().map(([index, suggestion]) => (
               <div
                 key={index}
+                ref={el => {
+                  if (selectedIndex === index) {
+                    this.selectedRef = el;
+                  }
+                }}
                 className={classNames(css.listItem, {
                   [css.active]: selectedIndex === index
                 })}

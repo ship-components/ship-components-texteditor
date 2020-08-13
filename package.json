@@ -1,6 +1,6 @@
 {
   "name": "ship-components-texteditor",
-  "version": "2.1.10",
+  "version": "2.2.0",
   "description": "Rich Text Editor for React",
   "main": "src/TextEditor.js",
   "scripts": {
@@ -37,6 +37,10 @@
     {
       "name": "Chris Orescan",
       "email": "chris.orescan@sony.com"
+    },
+    {
+      "name": "Adam Sas",
+      "email": "adam.sas@sony.com"
     }
   ],
   "dependencies": {

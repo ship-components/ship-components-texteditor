@@ -1,20 +1,7 @@
-import {ContentState, convertToRaw, convertFromRaw} from 'draft-js';
+import React from 'react';
+import { ContentState, convertToRaw, convertFromRaw } from 'draft-js';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
 import Entities from './Entities';
-import { createElement } from 'react';
-
-/**
- * Removes the HTML tags from Strings
- *
- * @param     {String}    str
- * @return    {String}
- */
-export function convertHTMLToString(str) {
-  if (typeof str !== 'string') {
-    return str;
-  }
-  return str.replace(/<\/?[^>]+(>|$)/g, '');
-}
 
 /**
  * Get the content depending on the type of data we're passing around
@@ -74,7 +61,7 @@ export function convertContentTo(content, type) {
       }
     })(content);
   } else if (type === 'text') {
-    return convertHTMLToString(convertContentTo(content, 'html'));
+    return content.getPlainText();
   } else {
     return content;
   }

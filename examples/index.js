@@ -14,7 +14,7 @@ class Examples extends React.Component {
     super(props);
 
     this.state ={
-      basic: 'This is a test',
+      basic: '<h1>Titles</h1><p>Here is <b>some <u>sample</u> <i>text</i></b> with links to google.com</p><blockquote>"And some quotes too"</blockquote><ul><li>Even Bullets!</li></ul>',
       json: '',
       suggestions: null
     };

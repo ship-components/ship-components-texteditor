@@ -56,7 +56,7 @@ export default class EntityState extends Immutable.Record({
   /**
    * Get active entity key
    *
-   * @return {String|null}
+   * @return {string|null}
    */
   getEntityKey() {
     return this.entityKey;
@@ -74,8 +74,8 @@ export default class EntityState extends Immutable.Record({
   /**
    * Check that the active entity's type is matching with the passed parameter
    *
-   * @param {String} type 
-   * @return {Boolean}
+   * @param {string} type 
+   * @return {boolean}
    */
   isEntityType(type) {
     return this.entity && this.entity.getType() === type ? true : false;

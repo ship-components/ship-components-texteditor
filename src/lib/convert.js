@@ -7,8 +7,8 @@ import Entities from './Entities';
 /**
  * Get the content depending on the type of data we're passing around
  *
- * @param     {String}    value
- * @param     {String}    type
+ * @param     {string}    value
+ * @param     {string}    type
  * @return    {ContentState}
  */
 export function convertContentFrom(value, type) {
@@ -35,8 +35,8 @@ export function convertContentFrom(value, type) {
  * Convert the content depending on what the parent wants
  *
  * @param     {ContentState}    content
- * @param     {String}          type
- * @return    {String}
+ * @param     {string}          type
+ * @return    {string}
  */
 export function convertContentTo(content, type) {
   if (type === 'json') {

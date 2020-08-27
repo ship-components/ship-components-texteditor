@@ -208,7 +208,7 @@ export default class TextEditor extends Component {
   /**
    * Keyboard events
    * @param {Event} event
-   * @return {String}
+   * @return {string}
    */
   handleKeyBinding(event) {
     if (typeof this.props.onKeyDown === 'function') {
@@ -235,8 +235,8 @@ export default class TextEditor extends Component {
 
   /**
    * Keyboard shortcuts
-   * @param {String} command
-   * @return {String}
+   * @param {string} command
+   * @return {string}
    */
   handleKeyCommand(command) {
     let content;
@@ -273,7 +273,7 @@ export default class TextEditor extends Component {
 
   /**
    * Toggle an inline style
-   * @param {String} inlineStyle
+   * @param {string} inlineStyle
    * @param {Event} event
    */
   handleInlineStyleClick(inlineStyle, event) {
@@ -290,7 +290,7 @@ export default class TextEditor extends Component {
 
   /**
    * Toggle an block style
-   * @param {String} blockStyle
+   * @param {string} blockStyle
    * @param {Event} event
    */
   handleBlockStyleClick(blockStyle, event) {
@@ -307,7 +307,7 @@ export default class TextEditor extends Component {
 
   /**
    * Toggle a link element
-   * @param {String} linkAction
+   * @param {string} linkAction
    * @param {Event} event
    */
   handleLinkClick(linkAction, event) {

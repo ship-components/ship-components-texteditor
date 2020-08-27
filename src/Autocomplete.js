@@ -40,7 +40,7 @@ export default class Autocomplete extends React.PureComponent {
   /**
    * Moves the selected suggestion to the previous or next suggestion
    *
-   * @param {String} direction Direction can be "up" or "down"
+   * @param {string} direction Direction can be "up" or "down"
    * @param {Event} event
    */
   moveSelection(direction, event) {
@@ -96,7 +96,7 @@ export default class Autocomplete extends React.PureComponent {
   /**
    * Handles when a suggestion was selected on mouse hover
    *
-   * @param {Number} index
+   * @param {number} index
    * @param {Event} event
    */
   handleSelection(index, event) {

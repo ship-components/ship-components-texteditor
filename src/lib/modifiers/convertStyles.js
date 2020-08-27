@@ -7,9 +7,9 @@ import InlineStyles from '../InlineStyles';
  *
  * @param {EditorState} editorState
  * @param {Object} options
- * @param {Boolean} options.allowBlock
- * @param {Boolean} options.allowInline
- * @param {Boolean} options.allowEntities
+ * @param {boolean} options.allowBlock
+ * @param {boolean} options.allowInline
+ * @param {boolean} options.allowEntities
  * @return {EditorState}
  */
 export function convertStyles(editorState, options) {

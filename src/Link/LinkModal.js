@@ -76,7 +76,7 @@ export default class LinkModal extends Component {
 
   /**
    * Make it all happen
-   * @return    {React}
+   * @return {React.ReactNode}
    */
   render() {
     return (

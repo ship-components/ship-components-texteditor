@@ -146,6 +146,7 @@ Below are is a sample of how to setup the loaders:
 2. `npm test`
 
 ## History
+* 2.2.2 - Fixed convert to text conversion when certain entities are present.
 * 2.2.1 - Reverted original example text, improved convert to text conversion.
 * 2.2.0 - Added support for custom entities (suggestion, mention, and hashtag)
 * 2.1.10 - Continued possible onChange loop bug fixes for 2.1.8 and 2.1.9

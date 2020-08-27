@@ -1,6 +1,7 @@
 import React from 'react';
 import { ContentState, convertToRaw, convertFromRaw } from 'draft-js';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
+import convertToText from './convertToText';
 import Entities from './Entities';
 
 /**
@@ -61,7 +62,17 @@ export function convertContentTo(content, type) {
       }
     })(content);
   } else if (type === 'text') {
-    return content.getPlainText();
+    return convertToText({
+      entityToText: (entity, text) => {
+        if (entity.type === Entities.Mention) {
+          return entity.data.text;
+        }
+        if (entity.type === Entities.Hashtag) {
+          return entity.data.text;
+        }
+        return text;
+      }
+    }, content);
   } else {
     return content;
   }

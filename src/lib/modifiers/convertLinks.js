@@ -29,8 +29,9 @@ export function convertLinks(editorState) {
     // Find and update all existing links that were automatically matched
     block.findEntityRanges((character) => {
       // Find all existing match links
-      if (character.getEntity() !== null) {
-        const entity = contentState.getEntity(character.getEntity());
+      const entityKey = character.getEntity();
+      if (entityKey !== null) {
+        const entity = contentState.getEntity(entityKey);
         if (entity.getType() === Entities.Link && entity.getData().created === 'match') {
           return true;
         }

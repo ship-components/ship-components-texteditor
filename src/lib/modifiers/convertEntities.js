@@ -2,7 +2,7 @@ import { EditorState, SelectionState, Modifier } from 'draft-js';
 import Immutable from 'immutable';
 
 /**
- * Converts mentions, returns the new editor state
+ * Converts entities, returns the new editor state
  * @param {EditorState} editorState
  * @param {Immutable.List<import('../Entities').EntityDecorator>} entityDecorators
  * @return {EditorState}

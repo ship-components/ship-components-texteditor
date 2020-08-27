@@ -15,13 +15,13 @@ module.exports = function(grunt) {
    * that, when run, should either load/configure or register
    * a Grunt task.
    *
-   * @param   {String}   dir   Directory to load
+   * @param   {string}   dir   Directory to load
    */
   function loadTasks(dir) {
     /**
      * Resolve any relative paths
      *
-     * @type    {String}
+     * @type    {string}
      */
     dir = require('path').resolve(dir);
 

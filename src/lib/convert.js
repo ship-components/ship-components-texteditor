@@ -1,13 +1,14 @@
 import React from 'react';
 import { ContentState, convertToRaw, convertFromRaw } from 'draft-js';
 import { convertFromHTML, convertToHTML } from 'draft-convert';
+import convertToText from './convertToText';
 import Entities from './Entities';
 
 /**
  * Get the content depending on the type of data we're passing around
  *
- * @param     {String}    value
- * @param     {String}    type
+ * @param     {string}    value
+ * @param     {string}    type
  * @return    {ContentState}
  */
 export function convertContentFrom(value, type) {
@@ -34,8 +35,8 @@ export function convertContentFrom(value, type) {
  * Convert the content depending on what the parent wants
  *
  * @param     {ContentState}    content
- * @param     {String}          type
- * @return    {String}
+ * @param     {string}          type
+ * @return    {string}
  */
 export function convertContentTo(content, type) {
   if (type === 'json') {
@@ -61,7 +62,17 @@ export function convertContentTo(content, type) {
       }
     })(content);
   } else if (type === 'text') {
-    return content.getPlainText();
+    return convertToText({
+      entityToText: (entity, text) => {
+        if (entity.type === Entities.Mention) {
+          return entity.data.text;
+        }
+        if (entity.type === Entities.Hashtag) {
+          return entity.data.text;
+        }
+        return text;
+      }
+    }, content);
   } else {
     return content;
   }

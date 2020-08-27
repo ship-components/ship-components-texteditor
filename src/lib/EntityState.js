@@ -26,16 +26,14 @@ export default class EntityState extends Immutable.Record({
     // Create selection around entity
     let entitySelection = null;
     block.findEntityRanges(
-      (character) => character.getEntity() !== null,
+      (character) => character.getEntity() === entityKey,
       (start, end) => {
-        if (block.getEntityAt(start) === entityKey) {
-          entitySelection = new SelectionState({
-            anchorKey: blockKey,
-            anchorOffset: start,
-            focusKey: blockKey,
-            focusOffset: end
-          });
-        }
+        entitySelection = new SelectionState({
+          anchorKey: blockKey,
+          anchorOffset: start,
+          focusKey: blockKey,
+          focusOffset: end
+        });
       }
     );
     // Create instance
@@ -58,7 +56,7 @@ export default class EntityState extends Immutable.Record({
   /**
    * Get active entity key
    *
-   * @return {String|null}
+   * @return {string|null}
    */
   getEntityKey() {
     return this.entityKey;
@@ -76,8 +74,8 @@ export default class EntityState extends Immutable.Record({
   /**
    * Check that the active entity's type is matching with the passed parameter
    *
-   * @param {String} type 
-   * @return {Boolean}
+   * @param {string} type 
+   * @return {boolean}
    */
   isEntityType(type) {
     return this.entity && this.entity.getType() === type ? true : false;

@@ -47,6 +47,7 @@ export const convertEntities = new Immutable.List([
         };
       }
       // Otherwise, keep it as regular text
+      return undefined;
     }
   },
   {

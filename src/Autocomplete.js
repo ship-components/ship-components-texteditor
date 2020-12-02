@@ -51,20 +51,20 @@ export default class Autocomplete extends React.PureComponent {
       // Set new selected index
       let { selectedIndex } = prevState;
       switch (direction) {
-        case 'up':
-          if (selectedIndex - 1 < 0) {
-            selectedIndex = this.props.suggestions.size - 1;
-          } else {
-            selectedIndex = selectedIndex - 1;
-          }
-          break;
-        case 'down':
-          if (selectedIndex + 1 >= this.props.suggestions.size) {
-            selectedIndex = 0;
-          } else {
-            selectedIndex = selectedIndex + 1;
-          }
-          break;
+      case 'up':
+        if (selectedIndex - 1 < 0) {
+          selectedIndex = this.props.suggestions.size - 1;
+        } else {
+          selectedIndex = selectedIndex - 1;
+        }
+        break;
+      case 'down':
+        if (selectedIndex + 1 >= this.props.suggestions.size) {
+          selectedIndex = 0;
+        } else {
+          selectedIndex = selectedIndex + 1;
+        }
+        break;
       }
       return {
         selectedIndex
@@ -150,7 +150,7 @@ export default class Autocomplete extends React.PureComponent {
             {suggestions.entrySeq().map(([index, suggestion]) => (
               <div
                 key={index}
-                ref={el => {
+                ref={(el) => {
                   if (selectedIndex === index) {
                     this.selectedRef = el;
                   }

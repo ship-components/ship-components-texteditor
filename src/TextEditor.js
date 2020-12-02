@@ -106,6 +106,8 @@ export default class TextEditor extends Component {
     this.forceUpdate = this.forceUpdate.bind(this);
     this.focus = this.focus.bind(this);
     this.handleEditorChange = this.handleEditorChange.bind(this);
+    this.handleBeforeInput = this.handleBeforeInput.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
     this.handleKeyBinding = this.handleKeyBinding.bind(this);
     this.handleKeyCommand = this.handleKeyCommand.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -206,6 +208,27 @@ export default class TextEditor extends Component {
   }
 
   /**
+   * Input handling (to fix replaceText issues)
+   * @param {string} chars
+   * @param {EditorState} editorState
+   * @return {string}
+   */
+  handleBeforeInput(chars, editorState) {
+    const currentContentState = editorState.getCurrentContent();
+    const selectionState = editorState.getSelection();
+    const newEditorState = EditorState.push(editorState, Modifier.replaceText(currentContentState, selectionState, chars));
+    this.handleEditorChange(newEditorState);
+    return 'handled';
+  }
+
+  /**
+   * Handle focus event
+   */
+  handleFocus() {
+    this.focus();
+  }
+
+  /**
    * Keyboard events
    * @param {Event} event
    * @return {string}
@@ -217,15 +240,15 @@ export default class TextEditor extends Component {
     if (this.props.suggestions) {
       switch (event.keyCode) {
       case 38:
-          // up arrow
+        // up arrow
         this.refs.autocomplete.moveSelection('up', event);
         return event.preventDefault();
       case 40:
-          // down arrow
+        // down arrow
         this.refs.autocomplete.moveSelection('down', event);
         return event.preventDefault();
       case 13:
-          // enter
+        // enter
         this.refs.autocomplete.clickSelection(event);
         return event.preventDefault();
       }
@@ -392,7 +415,7 @@ export default class TextEditor extends Component {
 
   /**
    * Click handler for an autocomplete suggestion
-   * @param {import('./lib/Entities').AutocompleteSuggestion} suggestion
+   * @param {import('./Autocomplete').AutocompleteSuggestion} suggestion
    */
   handleSuggestionClick(suggestion) {
     let editorState = this.state.editorState;
@@ -458,7 +481,7 @@ export default class TextEditor extends Component {
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentInlineStyle.has(type.style)}
                   onMouseDown={this.handleMouseDown}
-                  onClick={this.handleInlineStyleClick.bind(this, type.style)}
+                  onClick={() => this.handleInlineStyleClick(type.style)}
                   {...type}
                 />
               )}
@@ -472,7 +495,7 @@ export default class TextEditor extends Component {
                   // Determine if the style is active or not
                   active={selectionState.getHasFocus() && currentIsLink}
                   onMouseDown={this.handleMouseDown}
-                  onClick={this.handleLinkClick.bind(this, type.action)}
+                  onClick={() => this.handleLinkClick(type.action)}
                   {...type}
                 />
               )}
@@ -485,20 +508,21 @@ export default class TextEditor extends Component {
                   key={type.style}
                   active={type.style === blockType}
                   onMouseDown={this.handleMouseDown}
-                  onClick={this.handleBlockStyleClick.bind(this, type.style)}
+                  onClick={() => this.handleBlockStyleClick(type.style)}
                   {...type}
                 />
               ) : null}
           </div>
         : null}
         <div
-          onClick={this.focus}
+          onClick={this.handleFocus}
           className={classNames(css.editor, 'text-editor--editor')}
         >
           <Editor
             ref='editor'
             editorState={editorState}
             keyBindingFn={this.handleKeyBinding}
+            handleBeforeInput={this.handleBeforeInput}
             handleKeyCommand={this.handleKeyCommand}
             onUpArrow={this.handleKeyBinding}
             onDownArrow={this.handleKeyBinding}
@@ -521,6 +545,8 @@ export default class TextEditor extends Component {
     );
   }
 }
+
+TextEditor.Entities = Entities;
 
 /**
  * Type checking
